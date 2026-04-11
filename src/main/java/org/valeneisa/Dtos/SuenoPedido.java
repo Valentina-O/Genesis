@@ -3,7 +3,7 @@ import lombok.Data;
 
 @Data
 
-public class SuenoRequest {
+public class SuenoPedido {
     private String modo; // "DESPERTAR" o "DORMIR"
     private String horaReferencia; // HH:mm
     private int minutosParaConciliar = 14;

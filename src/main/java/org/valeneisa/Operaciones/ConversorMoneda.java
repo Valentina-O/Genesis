@@ -1,11 +1,11 @@
 package org.valeneisa.Operaciones;
 
 import org.valeneisa.Core.IOperacion;
-import org.valeneisa.Dtos.ConversorRequest;
-import org.valeneisa.Dtos.ConversorResponse;
+import org.valeneisa.Dtos.ConversorPedido;
+import org.valeneisa.Dtos.ConversorRespuesta;
 import org.valeneisa.Util.MatematicasUtil;
 
-public class ConversorMoneda implements IOperacion<ConversorRequest, ConversorResponse> {
+public class ConversorMoneda implements IOperacion<ConversorPedido, ConversorRespuesta> {
 
     @Override
     public String obtenerCodigoOp() { return "OP-02"; }
@@ -14,7 +14,7 @@ public class ConversorMoneda implements IOperacion<ConversorRequest, ConversorRe
     public int obtenerCostoBase() { return 10; }
 
     @Override
-    public ConversorResponse ejecutar(ConversorRequest solicitud) {
+    public ConversorRespuesta ejecutar(ConversorPedido solicitud) {
         double resultado;
 
         // Si la moneda de origen es COP, queremos pasar a USD (Dividimos)
@@ -25,7 +25,7 @@ public class ConversorMoneda implements IOperacion<ConversorRequest, ConversorRe
             resultado = solicitud.getMonto() * solicitud.getTasaSugerida();
         }
 
-        return ConversorResponse.builder()
+        return ConversorRespuesta.builder()
                 .resultado(MatematicasUtil.redondear(resultado))
                 .monedaDestino(solicitud.getMonedaDestino().toUpperCase())
                 .tasaUtilizada(solicitud.getTasaSugerida())

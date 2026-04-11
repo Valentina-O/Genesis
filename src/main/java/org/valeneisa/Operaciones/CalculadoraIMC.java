@@ -1,11 +1,11 @@
 package org.valeneisa.Operaciones;
 
 import org.valeneisa.Core.IOperacion;
-import org.valeneisa.Dtos.IMCRequest;
-import org.valeneisa.Dtos.IMCResponse;
+import org.valeneisa.Dtos.IMCPedido;
+import org.valeneisa.Dtos.IMCRespuesta;
 import org.valeneisa.Util.MatematicasUtil;
 
-public class CalculadoraIMC implements IOperacion<IMCRequest, IMCResponse> {
+public class CalculadoraIMC implements IOperacion<IMCPedido, IMCRespuesta> {
 
     @Override
     public String obtenerCodigoOp() { return "OP-03"; }
@@ -14,7 +14,7 @@ public class CalculadoraIMC implements IOperacion<IMCRequest, IMCResponse> {
     public int obtenerCostoBase() { return 15; }
 
     @Override
-    public IMCResponse ejecutar(IMCRequest solicitud) {
+    public IMCRespuesta ejecutar(IMCPedido solicitud) {
         // Validación Lógica
         if (solicitud.getPesoKg() <= 0 || solicitud.getAlturaCm() <= 0) {
             throw new RuntimeException("El peso y la altura deben ser mayores a cero.");
@@ -26,7 +26,7 @@ public class CalculadoraIMC implements IOperacion<IMCRequest, IMCResponse> {
         double pesoMin = 18.5 * Math.pow(alturaM, 2);
         double pesoMax = 24.9 * Math.pow(alturaM, 2);
 
-        return IMCResponse.builder()
+        return IMCRespuesta.builder()
                 .imc(MatematicasUtil.redondear(imc))
                 .categoria(definirCategoria(imc))
                 .pesoMinSaludable(MatematicasUtil.redondear(pesoMin))

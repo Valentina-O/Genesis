@@ -3,6 +3,6 @@ import lombok.Data;
 
 @Data
 
-public class SleepRequest {
+public class SleepPedido {
 
 }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class ConversorResponse {
+public class ConversorRespuesta {
     private double resultado;
     private String monedaDestino;
     private double tasaUtilizada;

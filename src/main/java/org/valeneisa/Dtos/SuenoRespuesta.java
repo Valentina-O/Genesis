@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class SuenoResponse {
+public class SuenoRespuesta {
     private List<OpcionSueno> opciones;
     private int tokensConsumidos;
 }
