@@ -10,15 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 
-<<<<<<<< HEAD:src/main/java/org/valeneisa/Dtos/CreditoSolicitud.java
-<<<<<<<< HEAD:src/main/java/org/valeneisa/Dtos/CreditoSolicitud.java
 public class CreditoSolicitud {
-========
-public class CreditoRespuesta {
->>>>>>>> feature/user:src/main/java/org/valeneisa/Dtos/CreditoRespuesta.java
-========
-public class CreditoRespuesta {
->>>>>>>> feature/user:src/main/java/org/valeneisa/Dtos/CreditoRespuesta.java
     private double cuotaMensual;
     private double totalPagado;
     private double totalIntereses;

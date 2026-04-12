@@ -1,8 +1,10 @@
-package org.valeneisa.Dtos.autenticacion;
+package org.valeneisa.Dtos.Autenticacion;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 @Getter
 public class SolicitudRegistro {
 
@@ -17,15 +19,4 @@ public class SolicitudRegistro {
     @Size(min = 6, message = "Mínimo 6 caracteres")
     private String contrasena;
 
-    public void setUsuario(String usuario) {
-        this.usuario = usuario;
-    }
-
-    public void setCorreo(String correo) {
-        this.correo = correo;
-    }
-
-    public void setContrasena(String contrasena) {
-        this.contrasena = contrasena;
-    }
 }
