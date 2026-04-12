@@ -14,11 +14,11 @@ import lombok.RequiredArgsConstructor;
 
         // --- OP-03: IMC ---
         @PostMapping("/imc")
-        public IMCResponse calcularIMC(@RequestBody IMCRequest solicitud) {
+        public IMCRespuesta calcularIMC(@RequestBody IMCSolicitud solicitud) {
             validarPositivo(solicitud.getPesoKg(), solicitud.getAlturaCm());
 
             CalculadoraIMC calc = new CalculadoraIMC();
-            IMCResponse respuesta = calc.ejecutar(solicitud);
+            IMCRespuesta respuesta = calc.ejecutar(solicitud);
 
             actualizarTokens(respuesta, calc.obtenerCostoBase(), solicitud, respuesta);
             return respuesta;
@@ -26,11 +26,11 @@ import lombok.RequiredArgsConstructor;
 
         // --- OP-01: CRÉDITO ---
         @PostMapping("/credito")
-        public CreditoResponse calcularCredito(@RequestBody CreditoRequest solicitud) {
+        public CreditoSolicitud calcularCredito(@RequestBody CreditoRespuesta solicitud) {
             validarPositivo(solicitud.getPrecio(), solicitud.getCuotas(), solicitud.getTasaMensual());
 
             CalculadoraCredito calc = new CalculadoraCredito();
-            CreditoResponse respuesta = calc.ejecutar(solicitud);
+            CreditoSolicitud respuesta = calc.ejecutar(solicitud);
 
             actualizarTokens(respuesta, calc.obtenerCostoBase(), solicitud, respuesta);
             return respuesta;
@@ -38,14 +38,14 @@ import lombok.RequiredArgsConstructor;
 
         // --- OP-04: SUEÑO ---
         @PostMapping("/sueno")
-        public SuenoResponse calcularSueno(@RequestBody SuenoRequest solicitud) {
+        public SolicitudSueno calcularSueno(@RequestBody RespuestaSueno solicitud) {
             // Validación lógica: verificar que el modo sea válido
             if (solicitud.getModo() == null || solicitud.getHoraReferencia() == null) {
                 throw new RuntimeException("Modo y hora son obligatorios");
             }
 
             CalculadoraSueno calc = new CalculadoraSueno();
-            SuenoResponse respuesta = calc.ejecutar(solicitud);
+            SolicitudSueno respuesta = calc.ejecutar(solicitud);
 
             actualizarTokens(respuesta, calc.obtenerCostoBase(), solicitud, respuesta);
             return respuesta;
@@ -53,11 +53,11 @@ import lombok.RequiredArgsConstructor;
 
         // --- OP-02: CONVERSOR ---
         @PostMapping("/moneda")
-        public ConversorResponse calcularMoneda(@RequestBody ConversorRequest solicitud) {
+        public ConversorRespuesta calcularMoneda(@RequestBody ConversorSolicitud solicitud) {
             validarPositivo(solicitud.getMonto(), solicitud.getTasaSugerida());
 
             ConversorMoneda calc = new ConversorMoneda();
-            ConversorResponse respuesta = calc.ejecutar(solicitud);
+            ConversorRespuesta respuesta = calc.ejecutar(solicitud);
 
             actualizarTokens(respuesta, calc.obtenerCostoBase(), solicitud, respuesta);
             return respuesta;
@@ -69,10 +69,10 @@ import lombok.RequiredArgsConstructor;
             int costoTotal = servicioToken.calcularCostoTotal(costoBase, req, res);
 
             // Usamos reflexión simple o casteos para asignar los tokens
-            if (responseObj instanceof IMCResponse) ((IMCResponse) responseObj).setTokensConsumidos(costoTotal);
-            if (responseObj instanceof CreditoResponse) ((CreditoResponse) responseObj).setTokensConsumidos(costoTotal);
-            if (responseObj instanceof SuenoResponse) ((SuenoResponse) responseObj).setTokensConsumidos(costoTotal);
-            if (responseObj instanceof ConversorResponse) ((ConversorResponse) responseObj).setTokensConsumidos(costoTotal);
+            if (responseObj instanceof IMCRespuesta) ((IMCRespuesta) responseObj).setTokensConsumidos(costoTotal);
+            if (responseObj instanceof CreditoSolicitud) ((CreditoSolicitud) responseObj).setTokensConsumidos(costoTotal);
+            if (responseObj instanceof SolicitudSueno) ((SolicitudSueno) responseObj).setTokensConsumidos(costoTotal);
+            if (responseObj instanceof ConversorRespuesta) ((ConversorRespuesta) responseObj).setTokensConsumidos(costoTotal);
         }
 
         private void validarPositivo(double... valores) {

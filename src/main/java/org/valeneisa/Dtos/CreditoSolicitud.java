@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class CreditoResponse {
+public class CreditoSolicitud {
     private double cuotaMensual;
     private double totalPagado;
     private double totalIntereses;

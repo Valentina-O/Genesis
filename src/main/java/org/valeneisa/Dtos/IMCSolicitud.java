@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 
-public class IMCRequest {
+public class IMCSolicitud {
     private double pesoKg;    // peso en kilogramos
     private double alturaCm;  // altura en centímetros [cite: 80]
 }

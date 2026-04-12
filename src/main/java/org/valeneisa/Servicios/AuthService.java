@@ -2,8 +2,8 @@ package org.valeneisa.Servicios;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.valeneisa.Dtos.autenticación.LoginRequest;
-import org.valeneisa.Dtos.autenticación.RegisterRequest;
+import org.valeneisa.Dtos.Autenticacion.SolicitudLogin;
+import org.valeneisa.Dtos.Autenticacion.SolicitudRegistro;
 import org.valeneisa.Seguridad.JwtUtil;
 import org.valeneisa.usuario.entidad.Rol;
 import org.valeneisa.usuario.entidad.Usuario;
@@ -24,58 +24,33 @@ public class AuthService {
         this.usuarioRepo = usuarioRepo;
     }
 
-    public String login(LoginRequest request) {
+    public String login(SolicitudLogin request) {
 
-        System.out.println("\n🔥 === LOGIN ===");
-        System.out.println("👤 Username: " + request.getUsername());
+        Usuario usuario = usuarioRepo.buscarPorUsuario(request.getUsuario())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        Usuario usuario = usuarioRepo.buscarPorUsername(request.getUsername())
-                .orElseThrow(() -> {
-                    System.out.println("❌ Usuario no encontrado");
-                    return new RuntimeException("Usuario no encontrado");
-                });
-
-        System.out.println("✅ Usuario encontrado");
-
-        if (!passwordEncoder.matches(request.getPassword(), usuario.getContrasena())) {
-            System.out.println("❌ Contraseña incorrecta");
+        if (!passwordEncoder.matches(request.getContrasena(), usuario.getContrasena())) {
             throw new RuntimeException("Contraseña incorrecta");
         }
 
-        System.out.println("🔑 Contraseña correcta");
-
         if (!usuario.getEstaActivo()) {
-            System.out.println("❌ Usuario inactivo");
             throw new RuntimeException("Usuario inactivo");
         }
 
-        System.out.println("🟢 Usuario activo");
-
-        String token = jwtUtil.generarToken(usuario.getUsername(), usuario.getRolUsuario().name());
-
-        System.out.println("🎟️ Token generado: " + token);
-
-        return token;
+        return jwtUtil.generarToken(usuario.getUsuario(), usuario.getRolUsuario().name());
     }
 
-    public String register(RegisterRequest request) {
+    public String register(SolicitudRegistro request) {
 
-        System.out.println("\n🔥 === REGISTER ===");
-
-        if (usuarioRepo.buscarPorUsername(request.getUsername()).isPresent()) {
-            System.out.println("❌ Usuario ya existe: " + request.getUsername());
+        if (usuarioRepo.buscarPorUsuario(request.getUsuario()).isPresent()) {
             throw new RuntimeException("El usuario ya existe");
         }
 
-        System.out.println("📩 Username: " + request.getUsername());
-        System.out.println("📧 Email: " + request.getEmail());
-
-        String passwordEncriptado = passwordEncoder.encode(request.getPassword());
-        System.out.println("🔒 Password encriptado: " + passwordEncriptado);
+        String passwordEncriptado = passwordEncoder.encode(request.getContrasena());
 
         Usuario usuario = new Usuario();
-        usuario.setUsername(request.getUsername());
-        usuario.setCorreoElectronico(request.getEmail());
+        usuario.setUsuario(request.getUsuario());
+        usuario.setCorreoElectronico(request.getCorreo());
         usuario.setContrasena(passwordEncriptado);
         usuario.setRolUsuario(Rol.USER);
         usuario.setTokensDisponibles(0);
@@ -83,12 +58,6 @@ public class AuthService {
 
         usuarioRepo.guardar(usuario);
 
-        System.out.println("✅ Usuario guardado en memoria");
-
-        String token = jwtUtil.generarToken(usuario.getUsername(), usuario.getRolUsuario().name());
-
-        System.out.println("🎟️ Token generado: " + token);
-
-        return token;
+        return jwtUtil.generarToken(usuario.getUsuario(), usuario.getRolUsuario().name());
     }
 }
