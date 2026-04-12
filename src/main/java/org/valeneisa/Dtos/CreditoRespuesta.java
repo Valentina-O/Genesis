@@ -4,7 +4,11 @@ import lombok.Data;
 @Data
 
 <<<<<<<< HEAD:src/main/java/org/valeneisa/Dtos/CreditoRespuesta.java
+<<<<<<<< HEAD:src/main/java/org/valeneisa/Dtos/CreditoRespuesta.java
 public class CreditoRespuesta {
+========
+public class CreditoSolicitud {
+>>>>>>>> feature/user:src/main/java/org/valeneisa/Dtos/CreditoSolicitud.java
 ========
 public class CreditoSolicitud {
 >>>>>>>> feature/user:src/main/java/org/valeneisa/Dtos/CreditoSolicitud.java

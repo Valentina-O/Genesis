@@ -11,7 +11,11 @@ import java.util.List;
 @NoArgsConstructor
 
 <<<<<<<< HEAD:src/main/java/org/valeneisa/Dtos/CreditoSolicitud.java
+<<<<<<<< HEAD:src/main/java/org/valeneisa/Dtos/CreditoSolicitud.java
 public class CreditoSolicitud {
+========
+public class CreditoRespuesta {
+>>>>>>>> feature/user:src/main/java/org/valeneisa/Dtos/CreditoRespuesta.java
 ========
 public class CreditoRespuesta {
 >>>>>>>> feature/user:src/main/java/org/valeneisa/Dtos/CreditoRespuesta.java
