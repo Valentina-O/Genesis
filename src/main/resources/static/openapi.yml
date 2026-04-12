@@ -1,0 +1,175 @@
+openapi: 3.0.3
+info:
+  title: Proyecto Genesis - Breaze in the Moon
+  description: Plataforma de cómputo con trazabilidad de costos mediante tokens.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Servidor Local de Desarrollo
+
+paths:
+  # --- OPERACIONES DEL CATÁLOGO ---
+  /operations/credit:
+    post:
+      summary: "OP-01: ¿Cuánto me cuesta ese crédito?"
+      tags: [Operaciones]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditRequest'
+      responses:
+        '200':
+          description: Cálculo exitoso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditResponse'
+
+  /operations/currency-conv:
+    post:
+      summary: "OP-02: Conversor COP - USD"
+      tags: [Operaciones]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CurrencyRequest'
+      responses:
+        '200':
+          description: Conversión exitosa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrencyResponse'
+
+  /operations/bmi:
+    post:
+      summary: "OP-03: Calculadora de IMC"
+      tags: [Operaciones]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BMIRequest'
+      responses:
+        '200':
+          description: Resultado de IMC.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BMIResponse'
+
+  /operations/sleep:
+    post:
+      summary: "OP-04: Calculadora de sueño"
+      tags: [Operaciones]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SleepRequest'
+      responses:
+        '200':
+          description: Horarios calculados.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SleepResponse'
+
+  # --- ADMINISTRACIÓN ---
+  /admin/users:
+    get:
+      summary: Consultar listado de usuarios (Paginado)
+      tags: [Administrador]
+      responses:
+        '200':
+          description: Lista de usuarios.
+
+components:
+  schemas:
+    # OP-01
+    CreditRequest:
+      type: object
+      required: [precio, cuotas, tasaMensual]
+      properties:
+        precio: { type: number, example: 5000000 }
+        cuotas: { type: integer, example: 12 }
+        tasaMensual: { type: number, example: 1.5 }
+
+    CreditResponse:
+      type: object
+      properties:
+        cuotaMensual: { type: number }
+        totalPagado: { type: number }
+        totalIntereses: { type: number }
+        tablaAmortizacion:
+          type: array
+          items:
+            type: object
+            properties:
+              periodo: { type: integer }
+              cuota: { type: number }
+              capitalAmortizado: { type: number }
+              interesPagado: { type: number }
+              saldoRestante: { type: number }
+        tokensConsumidos: { type: integer }
+
+    # OP-02
+    CurrencyRequest:
+      type: object
+      required: [monto, monedaOrigen]
+      properties:
+        monto: { type: number, example: 100000 }
+        monedaOrigen: { type: string, enum: [COP, USD] }
+
+    CurrencyResponse:
+      type: object
+      properties:
+        montoConvertido: { type: number }
+        tasaAplicada: { type: number }
+        tokensConsumidos: { type: integer }
+
+    # OP-03
+    BMIRequest:
+      type: object
+      required: [pesoKg, alturaCm]
+      properties:
+        pesoKg: { type: number, example: 70 }
+        alturaCm: { type: number, example: 170 }
+
+    BMIResponse:
+      type: object
+      properties:
+        imc: { type: number }
+        categoria: { type: string }
+        pesoMinSaludable: { type: number }
+        pesoMaxSaludable: { type: number }
+        tokensConsumidos: { type: integer }
+
+    # OP-04
+    SleepRequest:
+      type: object
+      required: [modo, hora]
+      properties:
+        modo: { type: string, enum: [HORA_DESPERTAR, HORA_ACOSTARSE] }
+        hora: { type: string, example: "07:00" }
+        minutosParaDormir: { type: integer, default: 14 }
+
+    SleepResponse:
+      type: object
+      properties:
+        opciones:
+          type: array
+          items:
+            type: object
+            properties:
+              ciclos: { type: integer }
+              horaCalculada: { type: string }
+              calidad: { type: string }
+        tokensConsumidos: { type: integer }
