@@ -11,13 +11,12 @@ import lombok.*;
 @AllArgsConstructor
 public class Usuario {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUsuario;
 
-    @Column(name = "username", nullable = false, unique = true)
-    private String username;
+    @Column(name = "usuario", nullable = false, unique = true)
+    private String usuario;
 
     @Column(name = "correo_electronico", nullable = false, unique = true)
     private String correoElectronico;

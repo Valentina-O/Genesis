@@ -3,20 +3,19 @@ package org.valeneisa.Servicios;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.valeneisa.Core.IOperacion;
-import org.valeneisa.Dtos.UserProfileResponse;
+import org.valeneisa.Dtos.RespuestaPerfilUsuario;
+import org.valeneisa.Operaciones.IOperacionRepositorio;
+import org.valeneisa.Operaciones.Operacion;
 import org.valeneisa.tokens.*;
 import org.valeneisa.usuario.entidad.Usuario;
 import org.valeneisa.usuario.repositorio.IUsuarioRepositorio;
-import org.valeneisa.Operaciones.Operacion;
-import org.valeneisa.Operaciones.IOperacionRepositorio;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class ServicioUsuario {
 
     private final IUsuarioRepositorio usuarioRepo;
     private final IPlanRepositorio planRepo;
@@ -25,48 +24,47 @@ public class UserService {
     private final IOperacionRepositorio operacionRepo;
     private final ServicioToken servicioToken;
 
-    // 🔹 PERFIL (DTO)
-    public UserProfileResponse getProfile(String username) {
+    // 🔹 PERFIL
+    public RespuestaPerfilUsuario getProfile(String usuario) {
 
-        Usuario u = usuarioRepo.findByUsername(username)
+        Usuario u = usuarioRepo.findByUsuario(usuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        UserProfileResponse res = new UserProfileResponse();
+        RespuestaPerfilUsuario res = new RespuestaPerfilUsuario();
         res.setIdUsuario(u.getIdUsuario());
-        res.setUsername(u.getUsername());
+        res.setUsuario(u.getUsuario());
         res.setCorreoElectronico(u.getCorreoElectronico());
         res.setRolUsuario(u.getRolUsuario().name());
         res.setTokensDisponibles(u.getTokensDisponibles());
         res.setEstaActivo(u.getEstaActivo());
 
-        // 🔥 PLAN ACTIVO (si existe)
         suscripcionRepo.findByUsuarioAndEstaActivaTrue(u)
                 .ifPresent(s -> res.setPlanActivo(s.getPlan().getNombre()));
 
         return res;
     }
 
-    // 🔹 HISTORIAL (PAGINADO)
-    public List<Transaccion> getTransactions(String username, int page, int size) {
+    // 🔹 HISTORIAL
+    public List<Transaccion> getTransactions(String usuario, int page, int size) {
 
-        Usuario usuario = usuarioRepo.findByUsername(username)
+        Usuario u = usuarioRepo.findByUsuario(usuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         return transaccionRepo.findByUsuario(
-                usuario,
+                u,
                 PageRequest.of(page, size)
         ).getContent();
     }
 
-    // 🔹 CATÁLOGO DE OPERACIONES ACTIVAS
+    // 🔹 CATÁLOGO
     public List<Operacion> getCatalogo() {
         return operacionRepo.findByEstaActivaTrue();
     }
 
-    // 🔹 SUSCRIPCIÓN A PLAN
-    public String subscribe(String username, Long planId) {
+    // 🔹 SUSCRIPCIÓN
+    public String subscribe(String usuario, Long planId) {
 
-        Usuario usuario = usuarioRepo.findByUsername(username)
+        Usuario u = usuarioRepo.findByUsuario(usuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         Plan plan = planRepo.findById(planId)
@@ -76,64 +74,56 @@ public class UserService {
             throw new RuntimeException("Plan inactivo");
         }
 
-        // 🔥 Desactivar suscripción anterior
-        suscripcionRepo.findByUsuarioAndEstaActivaTrue(usuario)
+        suscripcionRepo.findByUsuarioAndEstaActivaTrue(u)
                 .ifPresent(s -> {
                     s.setEstaActiva(false);
                     suscripcionRepo.save(s);
                 });
 
-        // 🔥 Crear nueva suscripción
         Suscripcion nueva = new Suscripcion();
-        nueva.setUsuario(usuario);
+        nueva.setUsuario(u);
         nueva.setPlan(plan);
         nueva.setFechaInicio(LocalDateTime.now());
         nueva.setEstaActiva(true);
 
         suscripcionRepo.save(nueva);
 
-        // 🔥 Sumar tokens del plan
-        usuario.setTokensDisponibles(
-                usuario.getTokensDisponibles() + plan.getTokensOtorgados()
+        u.setTokensDisponibles(
+                u.getTokensDisponibles() + plan.getTokensOtorgados()
         );
 
-        usuarioRepo.save(usuario);
+        usuarioRepo.save(u);
 
         return "Suscripción exitosa";
     }
 
-    // 🔹 EJECUTAR OPERACIÓN (TOKENS + TRANSACCIÓN)
-    public Object ejecutarOperacion(String username, Object request, IOperacion operacion) {
+    // 🔹 OPERACIÓN
+    public Object ejecutarOperacion(String usuario, Object request, org.valeneisa.Core.IOperacion operacion) {
 
-        Usuario usuario = usuarioRepo.findByUsername(username)
+        Usuario u = usuarioRepo.findByUsuario(usuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // 🔥 Ejecutar operación
         Object respuesta = operacion.ejecutar(request);
 
-        // 🔥 Calcular costo
         int costo = servicioToken.calcularCostoTotal(
                 operacion.obtenerCostoBase(),
                 request,
                 respuesta
         );
 
-        if (usuario.getTokensDisponibles() < costo) {
+        if (u.getTokensDisponibles() < costo) {
             throw new RuntimeException("No tienes tokens suficientes");
         }
 
-        // 🔥 Descontar tokens
-        usuario.setTokensDisponibles(usuario.getTokensDisponibles() - costo);
-        usuarioRepo.save(usuario);
+        u.setTokensDisponibles(u.getTokensDisponibles() - costo);
+        usuarioRepo.save(u);
 
-        // 🔥 Buscar operación en BD (IMPORTANTE)
         Operacion op = operacionRepo
                 .findByNombre(operacion.getClass().getSimpleName())
-                .orElse(null); // si no existe, no rompe
+                .orElse(null);
 
-        // 🔥 Guardar transacción
         Transaccion t = new Transaccion();
-        t.setUsuario(usuario);
+        t.setUsuario(u);
         t.setOperacion(op);
         t.setTokensConsumidos(costo);
         t.setFecha(LocalDateTime.now());

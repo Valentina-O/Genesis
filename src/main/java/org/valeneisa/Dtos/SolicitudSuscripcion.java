@@ -2,7 +2,7 @@ package org.valeneisa.Dtos;
 
 import jakarta.validation.constraints.NotNull;
 
-public class SubscribeRequest {
+public class SolicitudSuscripcion {
 
     @NotNull(message = "El planId es obligatorio")
     private Long planId;

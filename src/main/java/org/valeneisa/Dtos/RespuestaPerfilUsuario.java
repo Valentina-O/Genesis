@@ -5,14 +5,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserProfileResponse {
+public class RespuestaPerfilUsuario {
 
     private Long idUsuario;
-    private String username;
+    private String usuario;
     private String correoElectronico;
     private String rolUsuario;
     private int tokensDisponibles;
     private boolean estaActivo;
     private String planActivo;
-    // getters y setters
 }

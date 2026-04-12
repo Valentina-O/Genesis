@@ -3,15 +3,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class SuenoResponse {
-    private List<OpcionSueno> opciones;
+public class ConversorRespuesta {
+    private double resultado;
+    private String monedaDestino;
+    private double tasaUtilizada;
     private int tokensConsumidos;
 }
-

@@ -1,11 +1,11 @@
 package org.valeneisa.Dtos.autenticación;
 
-public class AuthResponse {
+public class RespuestaAutenticacion {
 
     private String token;
     private String tipo = "Bearer";
 
-    public AuthResponse(String token) {
+    public RespuestaAutenticacion(String token) {
         this.token = token;
     }
 

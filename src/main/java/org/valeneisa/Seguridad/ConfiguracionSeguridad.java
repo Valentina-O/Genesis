@@ -29,8 +29,8 @@ public class ConfiguracionSeguridad {
                                 "/v3/api-docs/**"
                         ).permitAll()
 
-                        .requestMatchers("/user/**").hasRole("USER")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/usuario/**").hasRole("USER")
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 )
@@ -38,6 +38,7 @@ public class ConfiguracionSeguridad {
 
         return http.build();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
