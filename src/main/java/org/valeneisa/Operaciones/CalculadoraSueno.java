@@ -1,12 +1,20 @@
 package org.valeneisa.Operaciones;
 
 import org.valeneisa.Core.IOperacion;
+
+import org.valeneisa.Dtos.SuenoPedido;
+import org.valeneisa.Dtos.SuenoRespuesta;
+import org.valeneisa.Dtos.OpcionSueno;
+
 import org.valeneisa.Dtos.*;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+
+public class CalculadoraSueno implements IOperacion<SuenoPedido, SuenoRespuesta> {
 
 public class CalculadoraSueno implements IOperacion<SolicitudSueno, RespuestaSueno> {
 
@@ -17,7 +25,11 @@ public class CalculadoraSueno implements IOperacion<SolicitudSueno, RespuestaSue
     public int obtenerCostoBase() { return 20; }
 
     @Override
+
+    public SuenoRespuesta ejecutar(SuenoPedido solicitud) {
+
     public RespuestaSueno ejecutar(SolicitudSueno solicitud) {
+
 
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("HH:mm");
         LocalTime horaRef = LocalTime.parse(solicitud.getHoraReferencia(), formato);
@@ -42,7 +54,11 @@ public class CalculadoraSueno implements IOperacion<SolicitudSueno, RespuestaSue
             opciones.add(opcion);
         }
 
+
+        return SuenoRespuesta.builder()
+
         return RespuestaSueno.builder()
+
                 .opciones(opciones)
                 .build();
     }
