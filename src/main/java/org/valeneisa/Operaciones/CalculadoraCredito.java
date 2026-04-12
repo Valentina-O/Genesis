@@ -3,12 +3,20 @@ package org.valeneisa.Operaciones;
 import org.valeneisa.Core.IOperacion;
 import org.valeneisa.Dtos.CreditoPedido;
 import org.valeneisa.Dtos.CreditoRespuesta;
+
+import org.valeneisa.Dtos.CreditoRespuesta;
+import org.valeneisa.Dtos.CreditoSolicitud;
+
 import org.valeneisa.Dtos.FilaAmortizacion;
 import org.valeneisa.Util.MatematicasUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class CalculadoraCredito implements IOperacion<CreditoPedido, CreditoRespuesta> {
+
+public class CalculadoraCredito implements IOperacion<CreditoSolicitud, CreditoRespuesta> {
+
 
     @Override
     public String obtenerCodigoOp() { return "OP-01"; }
@@ -17,7 +25,11 @@ public class CalculadoraCredito implements IOperacion<CreditoPedido, CreditoResp
     public int obtenerCostoBase() { return 50; }
 
     @Override
+
     public CreditoRespuesta ejecutar(CreditoPedido solicitud) {
+
+    public CreditoRespuesta ejecutar(CreditoSolicitud solicitud) {
+
         double p = solicitud.getPrecio();
         int n = solicitud.getCuotas();
         double i = (solicitud.getTasaMensual() / 100.0);
