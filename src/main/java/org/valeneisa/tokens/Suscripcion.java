@@ -23,11 +23,11 @@ public class Suscripcion {
     @Column(name = "esta_activa")
     private Boolean estaActiva;
 
-    @ManyToOne
-    @JoinColumn(name = "id_plan")
+    @ManyToOne // Un plan puede estar en muchas suscripciones [cite: 27]
+    @JoinColumn(name = "id_plan", nullable = false)
     private Plan plan;
 
-    @OneToOne
-    @JoinColumn(name = "id_usuario")
+    @OneToOne // Un usuario tiene una única suscripción
+    @JoinColumn(name = "id_usuario", unique = true, nullable = false)
     private Usuario usuario;
 }

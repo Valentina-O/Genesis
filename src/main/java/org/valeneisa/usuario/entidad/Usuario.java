@@ -2,6 +2,7 @@ package org.valeneisa.usuario.entidad;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.valeneisa.tokens.Suscripcion;
 
 @Entity
 @Table(name = "usuarios")
@@ -27,6 +28,9 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     @Column(name = "rol")
     private Rol rolUsuario;
+
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private Suscripcion suscripcion;
 
     @Column(name = "tokens_disponibles")
     private Integer tokensDisponibles;
