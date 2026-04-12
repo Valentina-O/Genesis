@@ -1,10 +1,10 @@
-package org.valeneisa.controladores;
+package org.valeneisa.Controladores;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-import org.valeneisa.Dtos.autenticación.RespuestaAutenticacion;
-import org.valeneisa.Dtos.autenticación.SolicitudLogin;
-import org.valeneisa.Dtos.autenticación.SolicitudRegistro;
+import org.valeneisa.Dtos.autenticacion.RespuestaAutenticacion;
+import org.valeneisa.Dtos.autenticacion.SolicitudLogin;
+import org.valeneisa.Dtos.autenticacion.SolicitudRegistro;
 import org.valeneisa.Servicios.ServicioAutenticacion;
 
 @RestController
