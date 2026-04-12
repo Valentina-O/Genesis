@@ -1,6 +1,8 @@
 package org.valeneisa.Servicios;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.valeneisa.tokens.IPlanRepositorio;
 import org.valeneisa.tokens.ISuscripcionRepositorio;
@@ -30,6 +32,10 @@ public class PlanServicio {
     public Plan obtenerPlan(Long id) {
         return planRepositorio.findById(id)
                 .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
+    }
+    // Método actualizado para cumplir con la paginación
+    public Page<Plan> listarPlanesPaginados(Pageable pageable) {
+        return planRepositorio.findAll(pageable);
     }
 
     // 🔹 Actualizar plan
