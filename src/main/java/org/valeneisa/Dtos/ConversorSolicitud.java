@@ -3,7 +3,7 @@ import lombok.Data;
 
 @Data
 
-public class ConversorRequest {
+public class ConversorSolicitud {
     private double monto;
     private String monedaOrigen; // "COP" o "USD"
     private String monedaDestino; // "COP" o "USD"

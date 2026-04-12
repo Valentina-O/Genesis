@@ -11,18 +11,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class ConfiguracionSeguridad {
 
-    private final JwtFilter jwtFilter;
+    private final JwtFilter filtroJwt;
 
-    public ConfiguracionSeguridad(JwtFilter jwtFilter) {
-        this.jwtFilter = jwtFilter;
+    public ConfiguracionSeguridad(JwtFilter filtroJwt) {
+        this.filtroJwt = filtroJwt;
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain cadenaFiltros(HttpSecurity http) throws Exception {
 
         http
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
+                .authorizeHttpRequests(autorizacion -> autorizacion
                         .requestMatchers(
                                 "/auth/**",
                                 "/swagger-ui/**",
@@ -30,12 +30,13 @@ public class ConfiguracionSeguridad {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class); // 🔥 FALTA ESTO
+                .addFilterBefore(filtroJwt, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public PasswordEncoder codificadorContrasena() {
         return new BCryptPasswordEncoder();
     }
 }

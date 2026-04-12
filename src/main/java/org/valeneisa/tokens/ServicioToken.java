@@ -10,7 +10,7 @@ public class ServicioToken {
 
     public int calcularCostoTotal(int costoBase, Object entrada, Object salida) {
         try {
-            // Convertimos a JSON para medir longitud
+
             String jsonEntrada = mapeador.writeValueAsString(entrada);
             String jsonSalida = mapeador.writeValueAsString(salida);
 
@@ -20,7 +20,6 @@ public class ServicioToken {
             return costoBase + tokensEntrada + tokensSalida;
 
         } catch (Exception e) {
-            // Si falla, retornamos al menos el costo base
             return costoBase;
         }
     }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor // Genera el constructor público con todos los campos
 @NoArgsConstructor  // Genera el constructor público vacío
-public class IMCResponse {
+public class IMCRespuesta {
     private double imc;
     private String categoria;
     private double pesoMinSaludable;

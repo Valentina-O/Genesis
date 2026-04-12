@@ -8,13 +8,13 @@ import java.util.*;
 @Repository
 public class UsuarioMemoriaRepositorio {
 
-    private Map<String, Usuario> usuarios = new HashMap<>();
+    private final Map<String, Usuario> usuarios = new HashMap<>();
 
     public void guardar(Usuario usuario) {
-        usuarios.put(usuario.getUsername(), usuario);
+        usuarios.put(usuario.getUsuario(), usuario);
     }
 
-    public Optional<Usuario> buscarPorUsername(String username) {
-        return Optional.ofNullable(usuarios.get(username));
+    public Optional<Usuario> buscarPorUsuario(String usuario) {
+        return Optional.ofNullable(usuarios.get(usuario));
     }
 }
