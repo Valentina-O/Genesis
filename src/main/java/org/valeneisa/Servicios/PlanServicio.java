@@ -2,8 +2,10 @@ package org.valeneisa.Servicios;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.valeneisa.tokens.*;
-
+import org.valeneisa.tokens.IPlanRepositorio;
+import org.valeneisa.tokens.ISuscripcionRepositorio;
+import org.valeneisa.tokens.Plan;
+import org.valeneisa.tokens.Suscripcion;
 import java.util.List;
 
 @Service
