@@ -1,4 +1,4 @@
-package org.valeneisa.Dtos.autenticacion;
+package org.valeneisa.Dtos.Autenticacion;
 
 import lombok.Getter;
 

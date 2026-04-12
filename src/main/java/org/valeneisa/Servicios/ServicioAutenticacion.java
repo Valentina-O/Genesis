@@ -2,8 +2,8 @@ package org.valeneisa.Servicios;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.valeneisa.Dtos.autenticacion.SolicitudLogin;
-import org.valeneisa.Dtos.autenticacion.SolicitudRegistro;
+import org.valeneisa.Dtos.Autenticacion.SolicitudLogin;
+import org.valeneisa.Dtos.Autenticacion.SolicitudRegistro;
 import org.valeneisa.Seguridad.JwtUtil;
 import org.valeneisa.usuario.entidad.Rol;
 import org.valeneisa.usuario.entidad.Usuario;

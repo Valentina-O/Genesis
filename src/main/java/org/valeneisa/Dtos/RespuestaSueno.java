@@ -1,14 +1,16 @@
 package org.valeneisa.Dtos;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
-
-<<<<<<<< HEAD:src/main/java/org/valeneisa/Dtos/RespuestaSueno.java
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class RespuestaSueno {
-========
-public class SolicitudSueno {
->>>>>>>> feature/user:src/main/java/org/valeneisa/Dtos/SolicitudSueno.java
-    private String modo; // "DESPERTAR" o "DORMIR"
-    private String horaReferencia; // HH:mm
-    private int minutosParaConciliar = 14;
+    private List<OpcionSueno> opciones;
 }
