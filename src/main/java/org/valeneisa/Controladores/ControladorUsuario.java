@@ -30,9 +30,13 @@ public class ControladorUsuario {
     public List<Transaccion> historial(
             Authentication autenticacion,
             @RequestParam(defaultValue = "0") int pagina,
-            @RequestParam(defaultValue = "10") int tamaño
+            @RequestParam(defaultValue = "10") int tamano
     ) {
-        return servicioUsuario.getTransactions(autenticacion.getName(), pagina, tamaño);
+        return servicioUsuario.getTransactions(
+                autenticacion.getName(),
+                pagina,
+                tamano
+        );
     }
 
     // 🔹 CATÁLOGO
