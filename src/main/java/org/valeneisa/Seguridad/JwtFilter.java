@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -36,12 +37,16 @@ public class JwtFilter extends OncePerRequestFilter {
             if (jwtUtil.esValido(token)) {
 
                 String username = jwtUtil.extraerUsername(token);
+                String rol = jwtUtil.extraerRol(token); // 🔥 IMPORTANTE
+
+                SimpleGrantedAuthority authority =
+                        new SimpleGrantedAuthority("ROLE_" + rol);
 
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
                                 username,
                                 null,
-                                Collections.emptyList()
+                                Collections.singletonList(authority) // 🔥 AQUÍ ESTÁ LA CLAVE
                         );
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
