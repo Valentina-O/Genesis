@@ -9,10 +9,12 @@ import org.valeneisa.Operaciones.Operacion;
 import org.valeneisa.tokens.*;
 import org.valeneisa.usuario.entidad.Usuario;
 import org.valeneisa.usuario.repositorio.IUsuarioRepositorio;
+import org.valeneisa.Core.IOperacion; // Importamos la interfaz del core
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.reflect.Method;
 
 @Service
 @RequiredArgsConstructor
@@ -25,9 +27,8 @@ public class ServicioUsuario {
     private final IOperacionRepositorio operacionRepo;
     private final ServicioToken servicioToken;
 
-    // PERFIL
+    // --- PERFIL ---
     public RespuestaPerfilUsuario getProfile(String usuario) {
-
         Usuario u = usuarioRepo.findByUsuario(usuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -48,9 +49,8 @@ public class ServicioUsuario {
         return res;
     }
 
-    // HISTORIAL
+    // --- HISTORIAL ---
     public List<Transaccion> getTransactions(String usuario, int page, int size) {
-
         page = Math.max(page, 0);
         size = Math.min(Math.max(size, 1), 50);
 
@@ -63,15 +63,14 @@ public class ServicioUsuario {
         ).getContent();
     }
 
-    // CATÁLOGO
+    // --- CATÁLOGO ---
     public List<Operacion> getCatalogo() {
         List<Operacion> ops = operacionRepo.findByEstaActivaTrue();
         return ops != null ? ops : new ArrayList<>();
     }
 
-    // SUSCRIPCIÓN
+    // --- SUSCRIPCIÓN ---
     public String subscribe(String usuario, Long planId) {
-
         Usuario u = usuarioRepo.findByUsuario(usuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -100,46 +99,57 @@ public class ServicioUsuario {
         u.setTokensDisponibles(actuales + plan.getTokensOtorgados());
 
         usuarioRepo.save(u);
-
         return "Suscripción exitosa";
     }
 
-    // OPERACIÓN GENÉRICA (ESTO ES LO IMPORTANTE)
+    // --- OPERACIÓN GENÉRICA (CORREGIDA) ---
     public <T_REQ, T_RES> T_RES ejecutarOperacion(
             String usuario,
             T_REQ request,
-            org.valeneisa.Core.IOperacion<T_REQ, T_RES> operacion
+            IOperacion<T_REQ, T_RES> calculadora // Usamos el nombre 'calculadora' para no confundir con la entidad
     ) {
-
+        // 1. Validar Usuario
         Usuario u = usuarioRepo.findByUsuario(usuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        T_RES respuesta = operacion.ejecutar(request);
+        // 2. Ejecutar el cálculo
+        T_RES respuesta = calculadora.ejecutar(request);
 
+        // 3. Calcular costo
         int costo = servicioToken.calcularCostoTotal(
-                operacion.obtenerCostoBase(),
+                calculadora.obtenerCostoBase(),
                 request,
                 respuesta
         );
 
+        // 4. Validar saldo
         if (u.getTokensDisponibles() < costo) {
-            throw new RuntimeException("No tienes tokens suficientes");
+            throw new RuntimeException("No tienes tokens suficientes. Costo: " + costo);
         }
 
+        // 5. Descontar y Guardar
         u.setTokensDisponibles(u.getTokensDisponibles() - costo);
         usuarioRepo.save(u);
 
-        Operacion op = operacionRepo
-                .findByCodigo(operacion.obtenerCodigoOp())
-                .orElseThrow(() -> new RuntimeException("Operación no encontrada"));
+        // 6. Registrar en Historial
+        Operacion opEntidad = operacionRepo
+                .findByCodigo(calculadora.obtenerCodigoOp())
+                .orElseThrow(() -> new RuntimeException("Operación no configurada en BD: " + calculadora.obtenerCodigoOp()));
 
         Transaccion t = new Transaccion();
         t.setUsuario(u);
-        t.setOperacion(op);
+        t.setOperacion(opEntidad);
         t.setTokensConsumidos(costo);
         t.setFecha(LocalDateTime.now());
-
         transaccionRepo.save(t);
+
+        // 7. (Opcional) Intentar inyectar el costo en la respuesta si tiene el método setTokensConsumidos
+        try {
+            Method method = respuesta.getClass().getMethod("setTokensConsumidos", int.class);
+            method.invoke(respuesta, costo);
+        } catch (Exception ignored) {
+            // Si la respuesta no tiene el campo de tokens, simplemente ignoramos
+        }
 
         return respuesta;
     }

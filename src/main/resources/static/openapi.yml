@@ -6,95 +6,239 @@ info:
 
 servers:
   - url: http://localhost:8080/api/v1
-    description: Servidor Local de Desarrollo
+    description: Servidor Local de Desarrollo (v1)
+
+# --- SEGURIDAD GLOBAL ---
+security:
+  - bearerAuth: []
 
 paths:
-  # --- OPERACIONES DEL CATÁLOGO ---
-  /operations/credit:
+  # --- AUTENTICACIÓN ---
+  /auth/registrar:
     post:
-      summary: "OP-01: ¿Cuánto me cuesta ese crédito?"
+      summary: "Registrar un nuevo usuario"
+      tags: [Autenticación]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudRegistro'
+      responses:
+        '201':
+          description: Usuario creado con éxito.
+        '400':
+          $ref: '#/components/responses/ErrorValidacion'
+
+  /auth/login:
+    post:
+      summary: "Iniciar sesión"
+      tags: [Autenticación]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudLogin'
+      responses:
+        '200':
+          description: Login exitoso.
+
+  # --- USUARIO ---
+  /usuario/perfil:
+    get:
+      summary: "Consultar perfil del usuario actual"
+      tags: [Usuario]
+      responses:
+        '200':
+          description: Datos del perfil.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioPerfil'
+
+  /usuario/historial:
+    get:
+      summary: "Consultar historial de transacciones"
+      tags: [Usuario]
+      parameters:
+        - name: pagina
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: tamano
+          in: query
+          schema: { type: integer, default: 10 }
+      responses:
+        '200':
+          description: Lista de transacciones.
+
+  /usuario/catalogo:
+    get:
+      summary: "Ver catálogo de operaciones"
+      tags: [Usuario]
+      responses:
+        '200':
+          description: Lista de operaciones activas.
+
+  /usuario/suscripcion:
+    post:
+      summary: "Suscribirse a un plan de tokens"
+      tags: [Usuario]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudSuscripcion'
+      responses:
+        '200':
+          description: Suscripción exitosa.
+
+  # --- OPERACIONES ---
+  /operaciones/credito:
+    post:
+      summary: "Cálculo de Crédito"
       tags: [Operaciones]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreditRequest'
+              $ref: '#/components/schemas/CreditoSolicitud'
       responses:
         '200':
           description: Cálculo exitoso.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreditResponse'
+                $ref: '#/components/schemas/CreditoRespuesta'
 
-  /operations/currency-conv:
+  /operaciones/imc:
     post:
-      summary: "OP-02: Conversor COP - USD"
+      summary: "Calculadora de IMC"
       tags: [Operaciones]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CurrencyRequest'
+              $ref: '#/components/schemas/IMCSolicitud'
       responses:
         '200':
-          description: Conversión exitosa.
+          description: Resultado exitoso.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CurrencyResponse'
+                $ref: '#/components/schemas/IMCRespuesta'
 
-  /operations/bmi:
+  /operaciones/sueno:
     post:
-      summary: "OP-03: Calculadora de IMC"
+      summary: "Calculadora de Sueño"
       tags: [Operaciones]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BMIRequest'
-      responses:
-        '200':
-          description: Resultado de IMC.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BMIResponse'
-
-  /operations/sleep:
-    post:
-      summary: "OP-04: Calculadora de sueño"
-      tags: [Operaciones]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SleepRequest'
+              $ref: '#/components/schemas/SolicitudSueno'
       responses:
         '200':
           description: Horarios calculados.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SleepResponse'
+                $ref: '#/components/schemas/RespuestaSueno'
 
-  # --- ADMINISTRACIÓN ---
-  /admin/users:
-    get:
-      summary: Consultar listado de usuarios (Paginado)
-      tags: [Administrador]
+  /operaciones/moneda:
+    post:
+      summary: "Conversor de Moneda"
+      tags: [Operaciones]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversorSolicitud'
       responses:
         '200':
-          description: Lista de usuarios.
+          description: Conversión realizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversorRespuesta'
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    ErrorValidacion:
+      description: "Error en los datos de entrada"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorRespuesta'
+
   schemas:
-    # OP-01
-    CreditRequest:
+    # --- AUTH & USER ---
+    SolicitudRegistro:
+      type: object
+      required: [usuario, correo, contrasena]
+      properties:
+        usuario: { type: string, example: "valentina" }
+        correo: { type: string, example: "vale@correo.com" }
+        contrasena: { type: string, example: "123456" }
+
+    SolicitudLogin:
+      type: object
+      required: [usuario, contrasena]
+      properties:
+        usuario: { type: string, example: "valentina" }
+        contrasena: { type: string, example: "123456" }
+
+    UsuarioPerfil:
+      type: object
+      properties:
+        usuario: { type: string }
+        tokensDisponibles: { type: integer }
+        planActivo: { type: string }
+        rolUsuario: { type: string, enum: [USER, ADMIN] }
+
+    SolicitudSuscripcion:
+      type: object
+      required: [planId]
+      properties:
+        planId: { type: integer, example: 1 }
+
+    ErrorRespuesta:
+      type: object
+      properties:
+        codigo: { type: integer }
+        mensaje: { type: string }
+        timestamp: { type: string, format: "date-time" }
+
+    # --- OPERACIÓN: IMC ---
+    IMCSolicitud:
+      type: object
+      required: [pesoKg, alturaCm]
+      properties:
+        pesoKg: { type: number, example: 70.5 }
+        alturaCm: { type: number, example: 175.0 }
+
+    IMCRespuesta:
+      type: object
+      properties:
+        imc: { type: number }
+        categoria: { type: string }
+        tokensConsumidos: { type: integer }
+
+    # --- OPERACIÓN: CRÉDITO ---
+    CreditoSolicitud:
       type: object
       required: [precio, cuotas, tasaMensual]
       properties:
@@ -102,66 +246,22 @@ components:
         cuotas: { type: integer, example: 12 }
         tasaMensual: { type: number, example: 1.5 }
 
-    CreditResponse:
+    CreditoRespuesta:
       type: object
       properties:
         cuotaMensual: { type: number }
         totalPagado: { type: number }
-        totalIntereses: { type: number }
-        tablaAmortizacion:
-          type: array
-          items:
-            type: object
-            properties:
-              periodo: { type: integer }
-              cuota: { type: number }
-              capitalAmortizado: { type: number }
-              interesPagado: { type: number }
-              saldoRestante: { type: number }
         tokensConsumidos: { type: integer }
 
-    # OP-02
-    CurrencyRequest:
-      type: object
-      required: [monto, monedaOrigen]
-      properties:
-        monto: { type: number, example: 100000 }
-        monedaOrigen: { type: string, enum: [COP, USD] }
-
-    CurrencyResponse:
-      type: object
-      properties:
-        montoConvertido: { type: number }
-        tasaAplicada: { type: number }
-        tokensConsumidos: { type: integer }
-
-    # OP-03
-    BMIRequest:
-      type: object
-      required: [pesoKg, alturaCm]
-      properties:
-        pesoKg: { type: number, example: 70 }
-        alturaCm: { type: number, example: 170 }
-
-    BMIResponse:
-      type: object
-      properties:
-        imc: { type: number }
-        categoria: { type: string }
-        pesoMinSaludable: { type: number }
-        pesoMaxSaludable: { type: number }
-        tokensConsumidos: { type: integer }
-
-    # OP-04
-    SleepRequest:
+    # --- OPERACIÓN: SUEÑO ---
+    SolicitudSueno:
       type: object
       required: [modo, hora]
       properties:
         modo: { type: string, enum: [HORA_DESPERTAR, HORA_ACOSTARSE] }
-        hora: { type: string, example: "07:00" }
-        minutosParaDormir: { type: integer, default: 14 }
+        hora: { type: string, example: "22:30" }
 
-    SleepResponse:
+    RespuestaSueno:
       type: object
       properties:
         opciones:
@@ -171,5 +271,19 @@ components:
             properties:
               ciclos: { type: integer }
               horaCalculada: { type: string }
-              calidad: { type: string }
+        tokensConsumidos: { type: integer }
+
+    # --- OPERACIÓN: MONEDA ---
+    ConversorSolicitud:
+      type: object
+      required: [monto, monedaOrigen, tasaSugerida]
+      properties:
+        monto: { type: number, example: 100.0 }
+        monedaOrigen: { type: string, example: "USD" }
+        tasaSugerida: { type: number, example: 3950.0 }
+
+    ConversorRespuesta:
+      type: object
+      properties:
+        montoConvertido: { type: number }
         tokensConsumidos: { type: integer }
