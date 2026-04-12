@@ -40,7 +40,7 @@ public class JwtUtil {
     }
 
     public String extraerRol(String token) {
-        return (String) obtenerClaims(token).get("rol");
+        return obtenerClaims(token).get("rol", String.class);
     }
 
     public boolean esValido(String token) {

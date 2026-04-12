@@ -2,5 +2,11 @@ package org.valeneisa.Operaciones;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface IOperacionRepositorio extends JpaRepository<Operacion, Long> {
+import java.util.List;
+import java.util.Optional;
+
+public interface IOperacionRepositorio extends JpaRepository<Operacion, Long>
+{
+    List<Operacion> findByEstaActivaTrue();
+    Optional<Operacion> findByNombre(String nombre);
 }
