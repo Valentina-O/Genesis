@@ -10,7 +10,15 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 
+<<<<<<<< HEAD:src/main/java/org/valeneisa/Dtos/SolicitudSueno.java
+<<<<<<<< HEAD:src/main/java/org/valeneisa/Dtos/SolicitudSueno.java
 public class SolicitudSueno {
+========
+public class RespuestaSueno {
+>>>>>>>> feature/user:src/main/java/org/valeneisa/Dtos/RespuestaSueno.java
+========
+public class RespuestaSueno {
+>>>>>>>> feature/user:src/main/java/org/valeneisa/Dtos/RespuestaSueno.java
     private List<OpcionSueno> opciones;
     private int tokensConsumidos;
 }

@@ -1,7 +1,9 @@
-package org.valeneisa.Dtos.Autenticacion;
+package org.valeneisa.Dtos.autenticacion;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
 
+@Getter
 public class SolicitudLogin {
 
     @NotBlank(message = "El usuario es obligatorio")
@@ -10,16 +12,8 @@ public class SolicitudLogin {
     @NotBlank(message = "La contraseña es obligatoria")
     private String contrasena;
 
-    public String getUsuario() {
-        return usuario;
-    }
-
     public void setUsuario(String usuario) {
         this.usuario = usuario;
-    }
-
-    public String getContrasena() {
-        return contrasena;
     }
 
     public void setContrasena(String contrasena) {
