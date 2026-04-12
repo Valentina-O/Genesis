@@ -39,10 +39,12 @@ public class AdminServicio{
         Usuario usuario = usuarioRepositorio.findById(idUsuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        usuario.setTokensDisponibles(usuario.getTokensDisponibles() + cantidad);
+        // Validar si es null antes de sumar
+        Integer saldoActual = usuario.getTokensDisponibles() != null ? usuario.getTokensDisponibles() : 0;
+        usuario.setTokensDisponibles(saldoActual + cantidad);
+
         usuarioRepositorio.save(usuario);
     }
-
     // Actualizar la tasa de cambio COP/USD [cite: 21, 73]
     @Transactional
     public void actualizarTasaCambio(Double nuevoValor) {
@@ -56,7 +58,7 @@ public class AdminServicio{
     // Activar o desactivar una operación del catálogo [cite: 20]
     @Transactional
     public void cambiarEstadoOperacion(String codigo, Boolean activo) {
-        Operacion op = operacionRepositorio.buscarMiCodigo(codigo)
+        Operacion op = operacionRepositorio.findByCodigo(codigo)
                 .orElseThrow(() -> new RuntimeException("Operación no encontrada"));
         op.setEstaActiva(activo);
         operacionRepositorio.save(op);

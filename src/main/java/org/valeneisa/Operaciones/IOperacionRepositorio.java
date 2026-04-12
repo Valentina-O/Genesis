@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface IOperacionRepositorio extends JpaRepository<Operacion, Long> {
-    Optional<Operacion> buscarMiCodigo(String codigo);
+    Optional<Operacion> findByCodigo(String codigo);
 }
