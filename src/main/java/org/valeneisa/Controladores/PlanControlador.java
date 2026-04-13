@@ -2,44 +2,83 @@ package org.valeneisa.Controladores;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable; // IMPORTANTE: Debe ser este
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.valeneisa.Servicios.PlanServicio;
 import org.valeneisa.tokens.Plan;
 
+/**
+ * Controlador REST para la gestión del catálogo de planes de la plataforma.
+ * <p>
+ * Expone endpoints bajo el prefijo {@code /api/planes} que permiten crear,
+ * consultar, actualizar y eliminar planes. El listado soporta paginación
+ * mediante {@link Pageable}.
+ * </p>
+ *
+ * @see PlanServicio
+ */
 @RestController
-@RequestMapping("/api/planes") // Agregamos /api por buena práctica
+@RequestMapping("/api/planes")
 @RequiredArgsConstructor
 public class PlanControlador {
 
     private final PlanServicio planServicio;
 
-    // 🔹 Crear un nuevo plan
+    /**
+     * Crea un nuevo plan en el sistema.
+     *
+     * @param plan objeto {@link Plan} con los datos del plan a registrar.
+     * @return {@link ResponseEntity} con estado {@code 200 OK} y el {@link Plan} creado.
+     */
     @PostMapping
     public ResponseEntity<Plan> crear(@RequestBody Plan plan) {
         return ResponseEntity.ok(planServicio.crearPlan(plan));
     }
 
-    // 🔹 Listar planes con PAGINACIÓN (Requisito del profesor)
+    /**
+     * Retorna el listado paginado de todos los planes disponibles en la plataforma.
+     *
+     * @param pageable parámetros de paginación y ordenamiento.
+     * @return {@link ResponseEntity} con estado {@code 200 OK} y una {@link Page} de {@link Plan}.
+     */
     @GetMapping
     public ResponseEntity<Page<Plan>> listar(Pageable pageable) {
         return ResponseEntity.ok(planServicio.listarPlanesPaginados(pageable));
     }
 
-    // 🔹 Obtener un plan por ID
+    /**
+     * Retorna un plan específico por su identificador único.
+     *
+     * @param id identificador único del plan a consultar.
+     * @return {@link ResponseEntity} con estado {@code 200 OK} y el {@link Plan} encontrado.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Plan> obtener(@PathVariable Long id) {
         return ResponseEntity.ok(planServicio.obtenerPlan(id));
     }
 
-    // 🔹 Actualizar un plan existente
+    /**
+     * Actualiza los datos de un plan existente.
+     *
+     * @param id   identificador único del plan a actualizar.
+     * @param plan objeto {@link Plan} con los nuevos datos a aplicar.
+     * @return {@link ResponseEntity} con estado {@code 200 OK} y el {@link Plan} actualizado.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Plan> actualizar(@PathVariable Long id, @RequestBody Plan plan) {
         return ResponseEntity.ok(planServicio.actualizarPlan(id, plan));
     }
 
-    // 🔹 Eliminar un plan (incluye la validación de suscripciones)
+    /**
+     * Elimina un plan del sistema por su identificador único.
+     * <p>
+     * Incluye validación de suscripciones activas antes de proceder con la eliminación.
+     * </p>
+     *
+     * @param id identificador único del plan a eliminar.
+     * @return {@link ResponseEntity} con estado {@code 204 No Content} si la eliminación fue exitosa.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         planServicio.eliminarPlan(id);

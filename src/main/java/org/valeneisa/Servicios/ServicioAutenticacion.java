@@ -10,14 +10,36 @@ import org.valeneisa.usuario.entidad.Rol;
 import org.valeneisa.usuario.entidad.Usuario;
 import org.valeneisa.usuario.repositorio.IUsuarioRepositorio;
 
+/**
+ * Servicio encargado de la autenticación de usuarios.
+ * Permite el registro de nuevos usuarios y el inicio de sesión,
+ * generando tokens JWT para la autorización.
+ */
 @Service
 @RequiredArgsConstructor
 public class ServicioAutenticacion {
 
+    /**
+     * Codificador de contraseñas.
+     */
     private final PasswordEncoder passwordEncoder;
+
+    /**
+     * Utilidad para generación de tokens JWT.
+     */
     private final JwtUtil jwtUtil;
+
+    /**
+     * Repositorio de usuarios.
+     */
     private final IUsuarioRepositorio usuarioRepo;
 
+    /**
+     * Realiza el proceso de inicio de sesión.
+     *
+     * @param request Datos de login (usuario y contraseña).
+     * @return Token JWT generado.
+     */
     public String login(SolicitudLogin request) {
 
         Usuario usuario = usuarioRepo.findByUsuario(request.getUsuario())
@@ -37,6 +59,12 @@ public class ServicioAutenticacion {
         );
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema.
+     *
+     * @param request Datos de registro.
+     * @return Token JWT generado para el nuevo usuario.
+     */
     public String register(SolicitudRegistro request) {
 
         if (usuarioRepo.findByUsuario(request.getUsuario()).isPresent()) {

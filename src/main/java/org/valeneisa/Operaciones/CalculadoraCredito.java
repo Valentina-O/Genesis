@@ -10,19 +10,41 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Componente encargado de calcular un crédito con sistema de amortización.
+ * Implementa la interfaz IOperacion para procesar solicitudes de tipo CreditoSolicitud
+ * y retornar una respuesta de tipo CreditoRespuesta.
+ */
 @Component
 public class CalculadoraCredito implements IOperacion<CreditoSolicitud, CreditoRespuesta> {
 
+    /**
+     * Retorna el código único de la operación.
+     *
+     * @return Código de la operación.
+     */
     @Override
     public String obtenerCodigoOp() {
         return "OP-01";
     }
 
+    /**
+     * Retorna el costo base en tokens de esta operación.
+     *
+     * @return Costo base en tokens.
+     */
     @Override
     public int obtenerCostoBase() {
         return 50;
     }
 
+    /**
+     * Ejecuta el cálculo del crédito con base en la solicitud recibida.
+     * Genera la cuota mensual, el total pagado, los intereses y la tabla de amortización.
+     *
+     * @param solicitud Datos necesarios para calcular el crédito.
+     * @return Respuesta con los resultados del cálculo.
+     */
     @Override
     public CreditoRespuesta ejecutar(CreditoSolicitud solicitud) {
         double p = solicitud.getPrecio();

@@ -12,19 +12,37 @@ import org.valeneisa.Operaciones.IOperacionRepositorio; // Debes crear este repo
 
 import java.time.LocalDateTime;
 
+/**
+ * Servicio encargado de gestionar funcionalidades administrativas del sistema.
+ * Permite administrar usuarios, tokens, tasas de cambio y operaciones.
+ */
 @Service
 public class AdminServicio{
 
+    /**
+     * Repositorio para gestionar usuarios.
+     */
     @Autowired
     private IUsuarioRepositorio usuarioRepositorio;
 
+    /**
+     * Repositorio para gestionar la tasa de cambio.
+     */
     @Autowired
     private ITasaCambioRepositorio tasaCambioRepositorio;
 
+    /**
+     * Repositorio para gestionar las operaciones del sistema.
+     */
     @Autowired
     private IOperacionRepositorio operacionRepositorio;
 
-    // Activar o desactivar un usuario [cite: 17]
+    /**
+     * Activa o desactiva un usuario.
+     *
+     * @param id Identificador del usuario.
+     * @param estado Estado a establecer (true = activo, false = inactivo).
+     */
     @Transactional
     public void cambiarEstadoUsuario(Long id, Boolean estado) {
         Usuario usuario = usuarioRepositorio.findById(id)
@@ -33,7 +51,12 @@ public class AdminServicio{
         usuarioRepositorio.save(usuario);
     }
 
-    // Recargar tokens manualmente [cite: 18, 33]
+    /**
+     * Recarga manualmente tokens a un usuario.
+     *
+     * @param idUsuario Identificador del usuario.
+     * @param cantidad Cantidad de tokens a agregar.
+     */
     @Transactional
     public void recargarTokens(Long idUsuario, Integer cantidad) {
         Usuario usuario = usuarioRepositorio.findById(idUsuario)
@@ -45,7 +68,12 @@ public class AdminServicio{
 
         usuarioRepositorio.save(usuario);
     }
-    // Actualizar la tasa de cambio COP/USD [cite: 21, 73]
+
+    /**
+     * Actualiza la tasa de cambio COP/USD en el sistema.
+     *
+     * @param nuevoValor Nuevo valor de la tasa de cambio.
+     */
     @Transactional
     public void actualizarTasaCambio(Double nuevoValor) {
         TasaCambio tasa = tasaCambioRepositorio.findById(1L)
@@ -55,7 +83,12 @@ public class AdminServicio{
         tasaCambioRepositorio.save(tasa);
     }
 
-    // Activar o desactivar una operación del catálogo [cite: 20]
+    /**
+     * Activa o desactiva una operación del catálogo.
+     *
+     * @param codigo Código de la operación.
+     * @param activo Estado a establecer (true = activa, false = inactiva).
+     */
     @Transactional
     public void cambiarEstadoOperacion(String codigo, Boolean activo) {
         Operacion op = operacionRepositorio.findByCodigo(codigo)

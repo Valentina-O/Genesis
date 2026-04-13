@@ -11,19 +11,41 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Componente encargado de calcular horarios óptimos de sueño basados en ciclos.
+ * Implementa la interfaz IOperacion para procesar solicitudes de tipo SolicitudSueno
+ * y retornar una respuesta de tipo RespuestaSueno.
+ */
 @Component
 public class CalculadoraSueno implements IOperacion<SolicitudSueno, RespuestaSueno> {
 
+    /**
+     * Retorna el código único de la operación.
+     *
+     * @return Código de la operación.
+     */
     @Override
     public String obtenerCodigoOp() {
         return "OP-04";
     }
 
+    /**
+     * Retorna el costo base en tokens de esta operación.
+     *
+     * @return Costo base en tokens.
+     */
     @Override
     public int obtenerCostoBase() {
         return 20;
     }
 
+    /**
+     * Ejecuta el cálculo de ciclos de sueño con base en la solicitud recibida.
+     * Genera distintas opciones dependiendo del número de ciclos (mínimo, recomendado e ideal).
+     *
+     * @param solicitud Datos necesarios para calcular los horarios de sueño.
+     * @return Respuesta con las opciones calculadas.
+     */
     @Override
     public RespuestaSueno ejecutar(SolicitudSueno solicitud) {
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("HH:mm");

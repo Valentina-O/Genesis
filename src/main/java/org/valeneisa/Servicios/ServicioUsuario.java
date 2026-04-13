@@ -9,25 +9,60 @@ import org.valeneisa.Operaciones.Operacion;
 import org.valeneisa.tokens.*;
 import org.valeneisa.usuario.entidad.Usuario;
 import org.valeneisa.usuario.repositorio.IUsuarioRepositorio;
-import org.valeneisa.Core.IOperacion; // Importamos la interfaz del core
+import org.valeneisa.Core.IOperacion;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.lang.reflect.Method;
 
+/**
+ * Servicio encargado de la gestión de funcionalidades del usuario.
+ * Incluye perfil, historial de transacciones, catálogo de operaciones,
+ * suscripciones y ejecución de operaciones con control de tokens.
+ */
 @Service
 @RequiredArgsConstructor
 public class ServicioUsuario {
 
+    /**
+     * Repositorio de usuarios.
+     */
     private final IUsuarioRepositorio usuarioRepo;
+
+    /**
+     * Repositorio de planes.
+     */
     private final IPlanRepositorio planRepo;
+
+    /**
+     * Repositorio de suscripciones.
+     */
     private final ISuscripcionRepositorio suscripcionRepo;
+
+    /**
+     * Repositorio de transacciones.
+     */
     private final ITransaccionRepositorio transaccionRepo;
+
+    /**
+     * Repositorio de operaciones.
+     */
     private final IOperacionRepositorio operacionRepo;
-    private final ServicioToken servicioToken;
+
+    /**
+     * Servicio encargado de la lógica de cálculo de tokens.
+     */
+    private final TokenServicio tokenServicio;
 
     // --- PERFIL ---
+
+    /**
+     * Obtiene la información del perfil de un usuario.
+     *
+     * @param usuario Nombre del usuario.
+     * @return Información del perfil.
+     */
     public RespuestaPerfilUsuario getProfile(String usuario) {
         Usuario u = usuarioRepo.findByUsuario(usuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -50,6 +85,15 @@ public class ServicioUsuario {
     }
 
     // --- HISTORIAL ---
+
+    /**
+     * Obtiene el historial de transacciones de un usuario de forma paginada.
+     *
+     * @param usuario Nombre del usuario.
+     * @param page Número de página.
+     * @param size Tamaño de la página.
+     * @return Lista de transacciones.
+     */
     public List<Transaccion> getTransactions(String usuario, int page, int size) {
         page = Math.max(page, 0);
         size = Math.min(Math.max(size, 1), 50);
@@ -64,12 +108,27 @@ public class ServicioUsuario {
     }
 
     // --- CATÁLOGO ---
+
+    /**
+     * Obtiene el catálogo de operaciones activas.
+     *
+     * @return Lista de operaciones activas.
+     */
     public List<Operacion> getCatalogo() {
         List<Operacion> ops = operacionRepo.findByEstaActivaTrue();
         return ops != null ? ops : new ArrayList<>();
     }
 
     // --- SUSCRIPCIÓN ---
+
+    /**
+     * Permite a un usuario suscribirse a un plan.
+     * Si ya tiene una suscripción activa, la desactiva.
+     *
+     * @param usuario Nombre del usuario.
+     * @param planId Identificador del plan.
+     * @return Mensaje de resultado.
+     */
     public String subscribe(String usuario, Long planId) {
         Usuario u = usuarioRepo.findByUsuario(usuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -102,39 +161,44 @@ public class ServicioUsuario {
         return "Suscripción exitosa";
     }
 
-    // --- OPERACIÓN GENÉRICA (CORREGIDA) ---
+    // --- OPERACIÓN GENÉRICA ---
+
+    /**
+     * Ejecuta una operación genérica, valida tokens, registra la transacción
+     * y agrega el costo consumido a la respuesta si es posible.
+     *
+     * @param usuario Nombre del usuario.
+     * @param request Solicitud de la operación.
+     * @param calculadora Implementación de la operación.
+     * @return Resultado de la operación.
+     */
     public <T_REQ, T_RES> T_RES ejecutarOperacion(
             String usuario,
             T_REQ request,
-            IOperacion<T_REQ, T_RES> calculadora // Usamos el nombre 'calculadora' para no confundir con la entidad
+            IOperacion<T_REQ, T_RES> calculadora
     ) {
-        // 1. Validar Usuario
         Usuario u = usuarioRepo.findByUsuario(usuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // 2. Ejecutar el cálculo
         T_RES respuesta = calculadora.ejecutar(request);
 
-        // 3. Calcular costo
-        int costo = servicioToken.calcularCostoTotal(
+        // Corregido: Llamada usando tokenServicio
+        int costo = tokenServicio.calcularCostoTotal(
                 calculadora.obtenerCostoBase(),
                 request,
                 respuesta
         );
 
-        // 4. Validar saldo
         if (u.getTokensDisponibles() < costo) {
             throw new RuntimeException("No tienes tokens suficientes. Costo: " + costo);
         }
 
-        // 5. Descontar y Guardar
         u.setTokensDisponibles(u.getTokensDisponibles() - costo);
         usuarioRepo.save(u);
 
-        // 6. Registrar en Historial
         Operacion opEntidad = operacionRepo
                 .findByCodigo(calculadora.obtenerCodigoOp())
-                .orElseThrow(() -> new RuntimeException("Operación no configurada en BD: " + calculadora.obtenerCodigoOp()));
+                .orElseThrow(() -> new RuntimeException("Operación no configurada en BD"));
 
         Transaccion t = new Transaccion();
         t.setUsuario(u);
@@ -143,12 +207,10 @@ public class ServicioUsuario {
         t.setFecha(LocalDateTime.now());
         transaccionRepo.save(t);
 
-        // 7. (Opcional) Intentar inyectar el costo en la respuesta si tiene el método setTokensConsumidos
         try {
             Method method = respuesta.getClass().getMethod("setTokensConsumidos", int.class);
             method.invoke(respuesta, costo);
         } catch (Exception ignored) {
-            // Si la respuesta no tiene el campo de tokens, simplemente ignoramos
         }
 
         return respuesta;

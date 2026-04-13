@@ -10,35 +10,73 @@ import org.valeneisa.tokens.Plan;
 import org.valeneisa.tokens.Suscripcion;
 import java.util.List;
 
+/**
+ * Servicio encargado de la gestión de planes del sistema.
+ * Permite crear, listar, actualizar y eliminar planes,
+ * incluyendo validaciones relacionadas con suscripciones activas.
+ */
 @Service
 @RequiredArgsConstructor
 public class PlanServicio {
 
+    /**
+     * Repositorio para gestionar planes.
+     */
     private final IPlanRepositorio planRepositorio;
+
+    /**
+     * Repositorio para gestionar suscripciones.
+     */
     private final ISuscripcionRepositorio suscripcionRepositorio;
 
-    // 🔹 Crear plan
+    /**
+     * Crea un nuevo plan y lo establece como activo por defecto.
+     *
+     * @param plan Plan a crear.
+     * @return Plan guardado.
+     */
     public Plan crearPlan(Plan plan) {
         plan.setEstaActivo(true);
         return planRepositorio.save(plan);
     }
 
-    // 🔹 Listar planes
+    /**
+     * Lista todos los planes disponibles.
+     *
+     * @return Lista de planes.
+     */
     public List<Plan> listarPlanes() {
         return planRepositorio.findAll();
     }
 
-    // 🔹 Buscar por id
+    /**
+     * Obtiene un plan por su identificador.
+     *
+     * @param id Identificador del plan.
+     * @return Plan encontrado.
+     */
     public Plan obtenerPlan(Long id) {
         return planRepositorio.findById(id)
                 .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
     }
-    // Método actualizado para cumplir con la paginación
+
+    /**
+     * Lista los planes de forma paginada.
+     *
+     * @param pageable Configuración de paginación.
+     * @return Página de planes.
+     */
     public Page<Plan> listarPlanesPaginados(Pageable pageable) {
         return planRepositorio.findAll(pageable);
     }
 
-    // 🔹 Actualizar plan
+    /**
+     * Actualiza un plan existente con nueva información.
+     *
+     * @param id Identificador del plan.
+     * @param nuevoPlan Datos actualizados del plan.
+     * @return Plan actualizado.
+     */
     public Plan actualizarPlan(Long id, Plan nuevoPlan) {
         Plan plan = obtenerPlan(id);
 
@@ -49,7 +87,11 @@ public class PlanServicio {
         return planRepositorio.save(plan);
     }
 
-    // 🔥 Eliminar plan (con validación)
+    /**
+     * Elimina un plan si no tiene suscripciones activas asociadas.
+     *
+     * @param id Identificador del plan.
+     */
     public void eliminarPlan(Long id) {
         Plan plan = obtenerPlan(id);
 
