@@ -93,7 +93,7 @@ public class OperacionControlador {
     /**
      * Retorna el historial de transacciones del usuario autenticado.
      */
-    @GetMapping("/usuario/historial")
+    @GetMapping("/usuario/historial-operaciones")
     public List<Transaccion> obtenerHistorial() {
         Usuario usuario = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return transaccionRepositorio.findByUsuarioOrderByFechaDesc(usuario);
@@ -105,7 +105,7 @@ public class OperacionControlador {
      * Nota: Los valores son calculados dinámicamente para cumplir con el contrato OpenAPI.
      * </p>
      */
-    @GetMapping("/admin/metricas")
+    @GetMapping("/admin/metricas-operacion")
     public MetricasResponse obtenerMetricas() {
         // Aquí puedes luego inyectar lógica real de conteo en la DB
         return new MetricasResponse(15, "OP-03 (IMC)", 450);
