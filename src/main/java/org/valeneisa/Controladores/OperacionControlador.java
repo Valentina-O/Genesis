@@ -102,4 +102,5 @@ public class OperacionControlador {
         Usuario usuario = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return transaccionRepositorio.findByUsuarioOrderByFechaDesc(usuario);
     }
+
 }
