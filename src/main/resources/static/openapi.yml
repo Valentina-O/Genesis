@@ -5,9 +5,8 @@ info:
   description: API completa con autenticación JWT, usuarios, admin y operaciones
 
 servers:
-    - url: http://localhost:8080/api/v1
+  - url: http://localhost:8080/api/v1
 
-# 🔐 JWT GLOBAL
 security:
   - bearerAuth: []
 
@@ -34,6 +33,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
   /auth/registrar:
     post:
@@ -53,11 +54,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
   # ========================
   # USUARIO
   # ========================
-  /api/v1/usuario/perfil:
+  /usuario/perfil:
     get:
       tags: [Usuario]
       summary: Obtener perfil
@@ -68,16 +71,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PerfilResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
-  /api/v1/usuario/catalogo:
+  /usuario/catalogo:
     get:
       tags: [Usuario]
       summary: Ver catálogo de operaciones
       responses:
         '200':
           description: Lista de operaciones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Operacion'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
-  /api/v1/usuario/historial:
+  /usuario/historial:
     get:
       tags: [Usuario]
       summary: Historial de transacciones
@@ -92,9 +105,15 @@ paths:
             type: integer
       responses:
         '200':
-          description: Historial
+          description: Historial paginado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistorialResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
-  /api/v1/usuario/suscripcion:
+  /usuario/suscripcion:
     post:
       tags: [Usuario]
       summary: Suscribirse a plan
@@ -107,11 +126,15 @@ paths:
       responses:
         '200':
           description: Suscripción exitosa
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 
   # ========================
-  # OPERACIONES 🔥
+  # OPERACIONES
   # ========================
-  /api/v1/operaciones/credito:
+  /operaciones/credito:
     post:
       tags: [Operaciones]
       summary: Calcular crédito
@@ -124,8 +147,14 @@ paths:
       responses:
         '200':
           description: Resultado crédito
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
-  /api/v1/operaciones/conversor:
+  /operaciones/conversor:
     post:
       tags: [Operaciones]
       summary: Conversor COP/USD
@@ -138,8 +167,14 @@ paths:
       responses:
         '200':
           description: Conversión realizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversorResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
-  /api/v1/operaciones/imc:
+  /operaciones/imc:
     post:
       tags: [Operaciones]
       summary: Calcular IMC
@@ -152,8 +187,14 @@ paths:
       responses:
         '200':
           description: Resultado IMC
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IMCResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
-  /api/v1/operaciones/sueno:
+  /operaciones/sueno:
     post:
       tags: [Operaciones]
       summary: Calcular sueño
@@ -166,19 +207,27 @@ paths:
       responses:
         '200':
           description: Resultado sueño
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuenoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
   # ========================
-  # ADMIN 👑
+  # ADMIN
   # ========================
-  /api/v1/admin/usuarios:
+  /admin/usuarios:
     get:
       tags: [Admin]
       summary: Listar usuarios
       responses:
         '200':
           description: Lista usuarios
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
-  /api/v1/admin/usuarios/{id}/activar:
+  /admin/usuarios/{id}/activar:
     patch:
       tags: [Admin]
       summary: Activar/desactivar usuario
@@ -191,8 +240,10 @@ paths:
       responses:
         '200':
           description: Estado actualizado
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
-  /api/v1/admin/usuarios/{id}/recargar:
+  /admin/usuarios/{id}/recargar:
     post:
       tags: [Admin]
       summary: Recargar tokens
@@ -213,6 +264,8 @@ paths:
       responses:
         '200':
           description: Tokens recargados
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
 components:
 
@@ -221,6 +274,20 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+  responses:
+    BadRequest:
+      description: Error de validación
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Unauthorized:
+      description: No autenticado
+
+    Forbidden:
+      description: Sin permisos
 
   schemas:
 
@@ -251,17 +318,47 @@ components:
     PerfilResponse:
       type: object
       properties:
+        idUsuario:
+          type: integer
         usuario:
+          type: string
+        correoElectronico:
+          type: string
+        rolUsuario:
           type: string
         tokensDisponibles:
           type: integer
         planActivo:
           type: string
+        estaActivo:
+          type: boolean
 
     SuscripcionRequest:
       type: object
       properties:
         planId:
+          type: integer
+
+    HistorialResponse:
+      type: object
+      properties:
+        contenido:
+          type: array
+          items:
+            type: object
+        pagina:
+          type: integer
+        totalPaginas:
+          type: integer
+
+    Operacion:
+      type: object
+      properties:
+        codigo:
+          type: string
+        nombre:
+          type: string
+        costoBase:
           type: integer
 
     CreditoRequest:
@@ -274,6 +371,16 @@ components:
         tasaMensual:
           type: number
 
+    CreditoResponse:
+      type: object
+      properties:
+        cuota:
+          type: number
+        totalPagado:
+          type: number
+        totalIntereses:
+          type: number
+
     ConversorRequest:
       type: object
       properties:
@@ -284,6 +391,14 @@ components:
         monedaDestino:
           type: string
 
+    ConversorResponse:
+      type: object
+      properties:
+        resultado:
+          type: number
+        tasa:
+          type: number
+
     IMCRequest:
       type: object
       properties:
@@ -291,6 +406,14 @@ components:
           type: number
         alturaCm:
           type: number
+
+    IMCResponse:
+      type: object
+      properties:
+        imc:
+          type: number
+        categoria:
+          type: string
 
     SuenoRequest:
       type: object
@@ -302,3 +425,20 @@ components:
         minutosParaDormir:
           type: integer
 
+    SuenoResponse:
+      type: object
+      properties:
+        opciones:
+          type: array
+          items:
+            type: object
+
+    ErrorResponse:
+      type: object
+      properties:
+        mensaje:
+          type: string
+        errores:
+          type: object
+          additionalProperties:
+            type: string

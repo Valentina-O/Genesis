@@ -55,18 +55,4 @@ public class ControladorUsuario {
                 solicitud.getPlanId()
         );
     }
-    @GetMapping("/mis-transacciones")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<Transaccion>> verMiHistorial(
-            @AuthenticationPrincipal Usuario usuarioLogueado,
-            @RequestParam(defaultValue = "0") int pagina,
-            @RequestParam(defaultValue = "10") int tamaño
-    ) {
-
-        List<Transaccion> transacciones = transaccionRepositorio
-                .findByUsuario(usuarioLogueado, PageRequest.of(pagina, tamaño))
-                .getContent();
-
-        return ResponseEntity.ok(transacciones);
-    }
 }
