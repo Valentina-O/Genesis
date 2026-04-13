@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.valeneisa.Servicios.AdminServicio;
+import org.valeneisa.tokens.ITransaccionRepositorio;
 import org.valeneisa.usuario.entidad.Usuario;
 import org.valeneisa.usuario.repositorio.IUsuarioRepositorio;
 
@@ -19,6 +20,9 @@ public class AdminControlador {
     @Autowired
     private IUsuarioRepositorio usuarioRepositorio;
 
+    @Autowired
+    private ITransaccionRepositorio transaccionRepositorio;
+    
     // Consultar listado de usuarios con saldo y estado (PAGINADO)
     @GetMapping("/usuarios")
     public ResponseEntity<Page<Usuario>> listarUsuarios(Pageable pageable) {
@@ -51,5 +55,10 @@ public class AdminControlador {
     public ResponseEntity<String> cambiarEstadoOperacion(@PathVariable String codigo, @RequestParam Boolean activo) {
         adminServicio.cambiarEstadoOperacion(codigo, activo);
         return ResponseEntity.ok("El estado de la operación " + codigo + " ha sido actualizado");
+    }
+
+    @GetMapping("/metricas/hoy")
+    public ResponseEntity<Integer> obtenerConsumoHoy() {
+        return ResponseEntity.ok(transaccionRepositorio.consumoTotalHoy());
     }
 }
