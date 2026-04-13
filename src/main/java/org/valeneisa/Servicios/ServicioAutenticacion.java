@@ -1,5 +1,6 @@
 package org.valeneisa.Servicios;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.valeneisa.Dtos.Autenticacion.SolicitudLogin;
@@ -10,19 +11,12 @@ import org.valeneisa.usuario.entidad.Usuario;
 import org.valeneisa.usuario.repositorio.IUsuarioRepositorio;
 
 @Service
+@RequiredArgsConstructor
 public class ServicioAutenticacion {
 
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final IUsuarioRepositorio usuarioRepo;
-
-    public ServicioAutenticacion(JwtUtil jwtUtil,
-                                 PasswordEncoder passwordEncoder,
-                                 IUsuarioRepositorio usuarioRepo) {
-        this.jwtUtil = jwtUtil;
-        this.passwordEncoder = passwordEncoder;
-        this.usuarioRepo = usuarioRepo;
-    }
 
     public String login(SolicitudLogin request) {
 
@@ -47,6 +41,10 @@ public class ServicioAutenticacion {
 
         if (usuarioRepo.findByUsuario(request.getUsuario()).isPresent()) {
             throw new RuntimeException("El usuario ya existe");
+        }
+
+        if (usuarioRepo.findByCorreoElectronico(request.getCorreo()).isPresent()) {
+            throw new RuntimeException("El correo ya está registrado");
         }
 
         String passwordEncriptado = passwordEncoder.encode(request.getContrasena());

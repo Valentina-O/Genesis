@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,32 +29,42 @@ public class ConfiguracionSeguridad {
     public SecurityFilterChain cadenaFiltros(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowedOrigins(List.of("*"));
-                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedMethods(List.of("*"));
                     config.setAllowedHeaders(List.of("*"));
                     return config;
                 }))
-                .authorizeHttpRequests(autorizacion -> autorizacion
-                        // --- RUTAS PÚBLICAS ---
+
+                .authorizeHttpRequests(auth -> auth
+
+                        // 🔓 PUBLICOS
                         .requestMatchers(
-                                "/auth/**",
-                                "/api/v1/auth/**",
+                                "/auth/**", // 🔥 ESTA ES LA CLAVE
+                                "/openapi.yml",
+                                "/api/v1/openapi.yml",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/v3/api-docs/**",     // CLAVE: Permite que Swagger lea los controllers
-                                "/v3/api-docs.yaml",
-                                "/v3/api-docs.json",
-                                "/h2-console/**",      // Permite entrar a ver la DB
-                                "/favicon.ico",
-                                "/error",
-                                "/webjars/**"
+                                "/v3/api-docs/**"
                         ).permitAll()
+
+                        // 🔐 ROLES
+                        .requestMatchers("/api/v1/usuario/**").hasRole("USER")
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
-                // Esto es necesario para que la consola de H2 se vea bien en el navegador
-                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+
+                .headers(headers ->
+                        headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
+                )
+
                 .addFilterBefore(filtroJwt, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
