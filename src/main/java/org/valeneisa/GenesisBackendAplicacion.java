@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan(basePackages = "org.valeneisa")
 public class GenesisBackendAplicacion {
 
+    
     public static void main(String[] args) {
         SpringApplication.run(GenesisBackendAplicacion.class, args);
     }
