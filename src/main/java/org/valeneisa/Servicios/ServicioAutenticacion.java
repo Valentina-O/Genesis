@@ -1,5 +1,6 @@
 package org.valeneisa.Servicios;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.valeneisa.Dtos.Autenticacion.SolicitudLogin;
@@ -7,26 +8,19 @@ import org.valeneisa.Dtos.Autenticacion.SolicitudRegistro;
 import org.valeneisa.Seguridad.JwtUtil;
 import org.valeneisa.usuario.entidad.Rol;
 import org.valeneisa.usuario.entidad.Usuario;
-import org.valeneisa.usuario.repositorio.UsuarioMemoriaRepositorio;
+import org.valeneisa.usuario.repositorio.IUsuarioRepositorio;
 
 @Service
-public class AuthService {
+@RequiredArgsConstructor
+public class ServicioAutenticacion {
 
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    private final UsuarioMemoriaRepositorio usuarioRepo;
-
-    public AuthService(JwtUtil jwtUtil,
-                       PasswordEncoder passwordEncoder,
-                       UsuarioMemoriaRepositorio usuarioRepo) {
-        this.jwtUtil = jwtUtil;
-        this.passwordEncoder = passwordEncoder;
-        this.usuarioRepo = usuarioRepo;
-    }
+    private final IUsuarioRepositorio usuarioRepo;
 
     public String login(SolicitudLogin request) {
 
-        Usuario usuario = usuarioRepo.buscarPorUsuario(request.getUsuario())
+        Usuario usuario = usuarioRepo.findByUsuario(request.getUsuario())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         if (!passwordEncoder.matches(request.getContrasena(), usuario.getContrasena())) {
@@ -37,13 +31,20 @@ public class AuthService {
             throw new RuntimeException("Usuario inactivo");
         }
 
-        return jwtUtil.generarToken(usuario.getUsuario(), usuario.getRolUsuario().name());
+        return jwtUtil.generarToken(
+                usuario.getUsuario(),
+                usuario.getRolUsuario().name()
+        );
     }
 
     public String register(SolicitudRegistro request) {
 
-        if (usuarioRepo.buscarPorUsuario(request.getUsuario()).isPresent()) {
+        if (usuarioRepo.findByUsuario(request.getUsuario()).isPresent()) {
             throw new RuntimeException("El usuario ya existe");
+        }
+
+        if (usuarioRepo.findByCorreoElectronico(request.getCorreo()).isPresent()) {
+            throw new RuntimeException("El correo ya está registrado");
         }
 
         String passwordEncriptado = passwordEncoder.encode(request.getContrasena());
@@ -56,8 +57,11 @@ public class AuthService {
         usuario.setTokensDisponibles(0);
         usuario.setEstaActivo(true);
 
-        usuarioRepo.guardar(usuario);
+        usuarioRepo.save(usuario);
 
-        return jwtUtil.generarToken(usuario.getUsuario(), usuario.getRolUsuario().name());
+        return jwtUtil.generarToken(
+                usuario.getUsuario(),
+                usuario.getRolUsuario().name()
+        );
     }
 }

@@ -1,17 +1,10 @@
 package org.valeneisa.Dtos;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import java.util.List;
 
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-
 public class SolicitudSueno {
-    private List<OpcionSueno> opciones;
-    private int tokensConsumidos;
+    private String modo;
+    private String horaReferencia;
+    private int minutosParaConciliar = 14;
 }
-

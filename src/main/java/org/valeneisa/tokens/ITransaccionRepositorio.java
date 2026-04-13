@@ -1,5 +1,7 @@
 package org.valeneisa.tokens;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.valeneisa.Operaciones.Operacion;
@@ -10,6 +12,7 @@ import java.util.Optional;
 
 public interface ITransaccionRepositorio extends JpaRepository<Transaccion, Long> {
     List<Transaccion> findByUsuarioOrderByFechaDesc(Usuario usuario);
+
     @Query("SELECT SUM(t.tokensConsumidos) FROM Transaccion t WHERE t.usuario.idUsuario = :id")
     Integer sumarTokensPorUsuario(Long id);
 

@@ -4,18 +4,25 @@ import org.valeneisa.Core.IOperacion;
 import org.valeneisa.Dtos.IMCSolicitud;
 import org.valeneisa.Dtos.IMCRespuesta;
 import org.valeneisa.Util.MatematicasUtil;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CalculadoraIMC implements IOperacion<IMCSolicitud, IMCRespuesta> {
 
     @Override
-    public String obtenerCodigoOp() { return "OP-03"; }
+    public String obtenerCodigoOp() {
+        return "OP-03";
+    }
 
     @Override
-    public int obtenerCostoBase() { return 15; }
+    public int obtenerCostoBase() {
+        return 15;
+    }
 
     @Override
     public IMCRespuesta ejecutar(IMCSolicitud solicitud) {
-        // Validación Lógica
+        // La validación positiva ya la hace el controlador,
+        // pero dejarla aquí como refuerzo es buena práctica.
         if (solicitud.getPesoKg() <= 0 || solicitud.getAlturaCm() <= 0) {
             throw new RuntimeException("El peso y la altura deben ser mayores a cero.");
         }

@@ -19,7 +19,7 @@ public class Usuario {
     @Column(name = "usuario", nullable = false, unique = true)
     private String usuario;
 
-    @Column(name = "correo_electronico", nullable = false, unique = true)
+    @Column(name = "correoElectronico", nullable = false, unique = true)
     private String correoElectronico;
 
     @Column(name = "contrasena", nullable = false)

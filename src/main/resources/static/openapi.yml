@@ -1,0 +1,304 @@
+openapi: 3.0.3
+info:
+  title: Proyecto Genesis - Breaze in the Moon
+  version: 1.0.0
+  description: API completa con autenticación JWT, usuarios, admin y operaciones
+
+servers:
+    - url: http://localhost:8080/api/v1
+
+# 🔐 JWT GLOBAL
+security:
+  - bearerAuth: []
+
+paths:
+
+  # ========================
+  # AUTH
+  # ========================
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login usuario
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Token JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /auth/registrar:
+    post:
+      tags: [Auth]
+      summary: Registrar usuario
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  # ========================
+  # USUARIO
+  # ========================
+  /api/v1/usuario/perfil:
+    get:
+      tags: [Usuario]
+      summary: Obtener perfil
+      responses:
+        '200':
+          description: Perfil usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerfilResponse'
+
+  /api/v1/usuario/catalogo:
+    get:
+      tags: [Usuario]
+      summary: Ver catálogo de operaciones
+      responses:
+        '200':
+          description: Lista de operaciones
+
+  /api/v1/usuario/historial:
+    get:
+      tags: [Usuario]
+      summary: Historial de transacciones
+      parameters:
+        - name: pagina
+          in: query
+          schema:
+            type: integer
+        - name: tamaño
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Historial
+
+  /api/v1/usuario/suscripcion:
+    post:
+      tags: [Usuario]
+      summary: Suscribirse a plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuscripcionRequest'
+      responses:
+        '200':
+          description: Suscripción exitosa
+
+  # ========================
+  # OPERACIONES 🔥
+  # ========================
+  /api/v1/operaciones/credito:
+    post:
+      tags: [Operaciones]
+      summary: Calcular crédito
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditoRequest'
+      responses:
+        '200':
+          description: Resultado crédito
+
+  /api/v1/operaciones/conversor:
+    post:
+      tags: [Operaciones]
+      summary: Conversor COP/USD
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversorRequest'
+      responses:
+        '200':
+          description: Conversión realizada
+
+  /api/v1/operaciones/imc:
+    post:
+      tags: [Operaciones]
+      summary: Calcular IMC
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IMCRequest'
+      responses:
+        '200':
+          description: Resultado IMC
+
+  /api/v1/operaciones/sueno:
+    post:
+      tags: [Operaciones]
+      summary: Calcular sueño
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuenoRequest'
+      responses:
+        '200':
+          description: Resultado sueño
+
+  # ========================
+  # ADMIN 👑
+  # ========================
+  /api/v1/admin/usuarios:
+    get:
+      tags: [Admin]
+      summary: Listar usuarios
+      responses:
+        '200':
+          description: Lista usuarios
+
+  /api/v1/admin/usuarios/{id}/activar:
+    patch:
+      tags: [Admin]
+      summary: Activar/desactivar usuario
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Estado actualizado
+
+  /api/v1/admin/usuarios/{id}/recargar:
+    post:
+      tags: [Admin]
+      summary: Recargar tokens
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tokens:
+                  type: integer
+      responses:
+        '200':
+          description: Tokens recargados
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    LoginRequest:
+      type: object
+      properties:
+        usuario:
+          type: string
+        contrasena:
+          type: string
+
+    RegisterRequest:
+      type: object
+      properties:
+        usuario:
+          type: string
+        correo:
+          type: string
+        contrasena:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+
+    PerfilResponse:
+      type: object
+      properties:
+        usuario:
+          type: string
+        tokensDisponibles:
+          type: integer
+        planActivo:
+          type: string
+
+    SuscripcionRequest:
+      type: object
+      properties:
+        planId:
+          type: integer
+
+    CreditoRequest:
+      type: object
+      properties:
+        precio:
+          type: number
+        cuotas:
+          type: integer
+        tasaMensual:
+          type: number
+
+    ConversorRequest:
+      type: object
+      properties:
+        monto:
+          type: number
+        monedaOrigen:
+          type: string
+        monedaDestino:
+          type: string
+
+    IMCRequest:
+      type: object
+      properties:
+        pesoKg:
+          type: number
+        alturaCm:
+          type: number
+
+    SuenoRequest:
+      type: object
+      properties:
+        modo:
+          type: string
+        hora:
+          type: string
+        minutosParaDormir:
+          type: integer
+

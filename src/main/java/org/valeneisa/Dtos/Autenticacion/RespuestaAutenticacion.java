@@ -1,5 +1,8 @@
 package org.valeneisa.Dtos.Autenticacion;
 
+import lombok.Getter;
+
+@Getter
 public class RespuestaAutenticacion {
 
     private String token;
@@ -9,11 +12,4 @@ public class RespuestaAutenticacion {
         this.token = token;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public String getTipo() {
-        return tipo;
-    }
 }
