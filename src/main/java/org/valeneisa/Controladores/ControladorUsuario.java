@@ -77,36 +77,5 @@ public class ControladorUsuario {
                 solicitud.getPlanId()
         );
     }
-    /**
-     * Suscribe al usuario autenticado a un plan específico de la plataforma
-     *                  Debe pasar las validaciones de {@code @Valid}.
-     * @return mensaje de confirmación de la suscripción realizada.
-     */
-    @GetMapping("/mis-transacciones")
-    @PreAuthorize("hasRole('USER')")
-    /**
-     * Retorna el historial de transacciones del usuario autenticado mediante su entidad de seguridad.
-     * <p>
-     * Endpoint restringido al rol {@code USER}. Utiliza {@link AuthenticationPrincipal} para
-     * resolver directamente la entidad {@link Usuario} del contexto de seguridad.
-     * </p>
-     *
-     * @param usuarioLogueado entidad {@link Usuario} del usuario actualmente autenticado,
-     *                        resuelta desde el contexto de seguridad de Spring.
-     * @param pagina          número de página a consultar (por defecto {@code 0}).
-     * @param tamaño          cantidad de registros por página (por defecto {@code 10}).
-     * @return {@link ResponseEntity} con la lista de {@link Transaccion} de la página solicitada.
-     */
-    public ResponseEntity<List<Transaccion>> verMiHistorial(
-            @AuthenticationPrincipal Usuario usuarioLogueado,
-            @RequestParam(defaultValue = "0") int pagina,
-            @RequestParam(defaultValue = "10") int tamaño
-    ) {
 
-        List<Transaccion> transacciones = transaccionRepositorio
-                .findByUsuario(usuarioLogueado, PageRequest.of(pagina, tamaño))
-                .getContent();
-
-        return ResponseEntity.ok(transacciones);
-    }
 }
