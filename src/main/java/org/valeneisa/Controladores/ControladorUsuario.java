@@ -2,13 +2,19 @@ package org.valeneisa.Controladores;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.valeneisa.Dtos.RespuestaPerfilUsuario;
 import org.valeneisa.Dtos.SolicitudSuscripcion;
 import org.valeneisa.Operaciones.Operacion;
 import org.valeneisa.Servicios.ServicioUsuario;
+import org.valeneisa.tokens.ITransaccionRepositorio;
 import org.valeneisa.tokens.Transaccion;
+import org.valeneisa.usuario.entidad.Usuario;
 
 import java.util.List;
 
@@ -18,6 +24,7 @@ import java.util.List;
 public class ControladorUsuario {
 
     private final ServicioUsuario servicioUsuario;
+    private final ITransaccionRepositorio transaccionRepositorio;
 
     @GetMapping("/perfil")
     public RespuestaPerfilUsuario perfil(Authentication auth) {
@@ -47,5 +54,19 @@ public class ControladorUsuario {
                 auth.getName(),
                 solicitud.getPlanId()
         );
+    }
+    @GetMapping("/mis-transacciones")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<Transaccion>> verMiHistorial(
+            @AuthenticationPrincipal Usuario usuarioLogueado,
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "10") int tamaño
+    ) {
+
+        List<Transaccion> transacciones = transaccionRepositorio
+                .findByUsuario(usuarioLogueado, PageRequest.of(pagina, tamaño))
+                .getContent();
+
+        return ResponseEntity.ok(transacciones);
     }
 }
