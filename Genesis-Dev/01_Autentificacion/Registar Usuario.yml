@@ -5,16 +5,26 @@ info:
 
 http:
   method: POST
-  url: http://localhost:8080/api/v1/auth/registrar
+  url: "{{base_url}}/auth/registrar"
   body:
     type: json
     data: |-
       {
-        "usuario": "valentina",
-        "correo": "vale@correo.com",
+        "usuario": "admin",
+        "correo": "admin@genesis.com",
         "contrasena": "123456"
       }
   auth: inherit
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8080/api/v1
+    - name: token
+      value: ""
+  scripts:
+    - type: tests
+      code: bru.setEnvVar("token", res.body.token);
 
 settings:
   encodeUrl: true

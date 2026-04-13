@@ -5,15 +5,10 @@ info:
 
 http:
   method: GET
-  url: http://localhost:8080/api/v1/usuario/perfil
-  headers:
-    - name: "Authorization:"
-      value: Bearer {{token}}
-
-runtime:
-  variables:
-    - name: token
-      value: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2YWxlbnRpbmEiLCJyb2wiOiJVU0VSIiwiaWF0IjoxNzc2MTEzMzcyLCJleHAiOjE3NzYxOTk3NzJ9.76niM4fSAxW6rt-xMs0uFris5dbQtbDtTIAfl3qaLb
+  url: "{{base_url}}/usuario/perfil"
+  auth:
+    type: bearer
+    token: "{{jwt_token}}"
 
 settings:
   encodeUrl: true

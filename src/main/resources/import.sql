@@ -31,3 +31,9 @@ INSERT INTO usuarios (
              true,
              10000
          );
+
+-- Cambia el rol del admin
+UPDATE usuarios SET rol = 'ROLE_ADMIN' WHERE usuario = 'admin';
+
+-- Cambia el rol de valentina (y otros usuarios)
+UPDATE usuarios SET rol = 'ROLE_USER' WHERE usuario = 'valentina';

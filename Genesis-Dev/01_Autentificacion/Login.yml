@@ -5,15 +5,25 @@ info:
 
 http:
   method: POST
-  url: http://localhost:8080/api/v1/auth/login
+  url: "{{base_url}}/auth/login"
   body:
     type: json
     data: |
       {
-        "usuario": "valentina",
+        "usuario": "admin",
         "contrasena": "123456"
       }
   auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        // En la pestaña 'Scripts' -> 'After Response' del Login
+        const data = res.getBody();
+        if (data.token) {
+          bru.setEnvVar("jwt_token", data.token);
+        }
 
 settings:
   encodeUrl: true

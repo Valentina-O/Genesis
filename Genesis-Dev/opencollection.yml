@@ -2,6 +2,27 @@ opencollection: 1.0.0
 
 info:
   name: Genesis-Dev
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  auth:
+    type: bearer
+    token: "{{jwt_token}}"
+  variables:
+    - name: base_url
+      value: http://localhost:8080/api/v1
+    - name: jwt_token
+      value: ""
 bundled: false
 extensions:
   bruno:
