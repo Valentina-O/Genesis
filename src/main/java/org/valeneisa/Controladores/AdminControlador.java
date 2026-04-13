@@ -10,6 +10,9 @@ import org.valeneisa.tokens.ITransaccionRepositorio;
 import org.valeneisa.usuario.entidad.Usuario;
 import org.valeneisa.usuario.repositorio.IUsuarioRepositorio;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/admin")
 public class AdminControlador {
@@ -22,7 +25,7 @@ public class AdminControlador {
 
     @Autowired
     private ITransaccionRepositorio transaccionRepositorio;
-    
+
     // Consultar listado de usuarios con saldo y estado (PAGINADO)
     @GetMapping("/usuarios")
     public ResponseEntity<Page<Usuario>> listarUsuarios(Pageable pageable) {
@@ -60,5 +63,14 @@ public class AdminControlador {
     @GetMapping("/metricas/hoy")
     public ResponseEntity<Integer> obtenerConsumoHoy() {
         return ResponseEntity.ok(transaccionRepositorio.consumoTotalHoy());
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<Map<String, Object>> obtenerDashboard() {
+        Map<String, Object> metrics = new HashMap<>();
+        metrics.put("consumoHoy", transaccionRepositorio.consumoTotalHoy());
+        metrics.put("operacionMasPopular", transaccionRepositorio.operacionMasPopular());
+        // Esto resume todo el trabajo de métricas en un solo clic
+        return ResponseEntity.ok(metrics);
     }
 }
