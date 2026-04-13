@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.valeneisa.Servicios.AdminServicio;
 import org.valeneisa.tokens.ITransaccionRepositorio;
@@ -11,6 +12,7 @@ import org.valeneisa.usuario.entidad.Usuario;
 import org.valeneisa.usuario.repositorio.IUsuarioRepositorio;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -72,5 +74,19 @@ public class AdminControlador {
         metrics.put("operacionMasPopular", transaccionRepositorio.operacionMasPopular());
         // Esto resume todo el trabajo de métricas en un solo clic
         return ResponseEntity.ok(metrics);
+    }
+
+    // Ver el consumo total de la plataforma (Métrica de Juan Pablo)
+    @GetMapping("/estadisticas/consumo-total")
+    @PreAuthorize("hasRole('ADMIN')") // Usando lo que hizo Sofía
+    public ResponseEntity<Integer> obtenerConsumoGlobal() {
+        return ResponseEntity.ok(transaccionRepositorio.consumoTotalHoy());
+    }
+
+    // Ver la operación más famosa
+    @GetMapping("/estadisticas/operacion-popular")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Object[]>> obtenerOperacionPopular() {
+        return ResponseEntity.ok(transaccionRepositorio.operacionMasPopular());
     }
 }
