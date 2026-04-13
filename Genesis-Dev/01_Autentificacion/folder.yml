@@ -1,0 +1,14 @@
+info:
+  name: 01_Autentificacion
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit
+  scripts:
+    - type: after-response
+      code: |-
+        const data = res.getBody();
+        if (data.token) {
+          bru.setEnvVar("jwt_token", data.token);
+        }

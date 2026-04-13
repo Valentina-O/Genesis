@@ -1,0 +1,25 @@
+info:
+  name: Calcular IMC
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:8080/api/v1/operaciones/imc
+  headers:
+    - name: Authorization
+      value: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2YWxlbnRpbmEiLCJyb2wiOiJVU0VSIiwiaWF0IjoxNzc2MDk4NjUzLCJleHAiOjE3NzYxODUwNTN9.r9ay1hseHjyfxtWKcZRiY6FOdu90l_LXtgb6hCcH-cc
+      disabled: true
+  body:
+    type: json
+    data: |
+      {
+        "pesoKg": 65.0,
+        "alturaCm": 170.0
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

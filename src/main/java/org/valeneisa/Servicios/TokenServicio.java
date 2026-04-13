@@ -12,13 +12,36 @@ import org.valeneisa.usuario.repositorio.IUsuarioRepositorio;
 
 import java.time.LocalDateTime;
 
+/**
+ * Servicio encargado de la gestión de tokens de los usuarios.
+ * Controla el consumo de tokens, valida saldos y registra las transacciones.
+ */
 @Service
 @RequiredArgsConstructor
 public class TokenServicio {
+
+    /**
+     * Repositorio de usuarios.
+     */
     private final IUsuarioRepositorio usuarioRepositorio;
+
+    /**
+     * Repositorio de transacciones.
+     */
     private final ITransaccionRepositorio transaccionRepositorio;
+
+    /**
+     * Repositorio de operaciones.
+     */
     private final IOperacionRepositorio operacionRepositorio;
 
+    /**
+     * Descuenta tokens a un usuario según el costo base de una operación
+     * y registra la transacción correspondiente.
+     *
+     * @param usuario Usuario al que se le descontarán tokens.
+     * @param operacion Operación realizada.
+     */
     @Transactional
     public void descontarTokens(Usuario usuario, Operacion operacion) {
         int costo = operacion.getCostoBase();
@@ -40,6 +63,14 @@ public class TokenServicio {
         transaccionRepositorio.save(t);
     }
 
+    /**
+     * Procesa una transacción manualmente usando el código de operación
+     * y un costo determinado.
+     *
+     * @param usuario Usuario que realiza la operación.
+     * @param codigoOp Código de la operación.
+     * @param costo Cantidad de tokens a descontar.
+     */
     @Transactional
     public void procesarTransaccion(Usuario usuario, String codigoOp, Integer costo) {
         // Validar saldo
@@ -62,6 +93,17 @@ public class TokenServicio {
         t.setFecha(LocalDateTime.now());
         transaccionRepositorio.save(t);
     }
+
+    /**
+     * Calcula el costo total de una operación.
+     * Actualmente devuelve el costo base, pero puede extenderse
+     * para incluir recargos adicionales según la lógica de negocio.
+     *
+     * @param costoBase Costo base de la operación.
+     * @param req Objeto de solicitud.
+     * @param res Objeto de respuesta.
+     * @return Costo total calculado.
+     */
     public int calcularCostoTotal(int costoBase, Object req, Object res) {
         // Por ahora, si no hay lógica de recargos extras, devolvemos el costo base
         // Esto quita el error de compilación de inmediato

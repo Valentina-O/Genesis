@@ -16,17 +16,45 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
 
+/**
+ * Filtro encargado de interceptar cada petición HTTP para validar el token JWT.
+ * Si el token es válido, se autentica al usuario en el contexto de seguridad.
+ */
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
+    /**
+     * Utilidad para manejar operaciones relacionadas con JWT.
+     */
     private final JwtUtil jwtUtil;
+
+    /**
+     * Repositorio para acceder a la información de los usuarios.
+     */
     private final IUsuarioRepositorio usuarioRepositorio;
 
+    /**
+     * Constructor que inyecta las dependencias necesarias.
+     *
+     * @param jwtUtil Utilidad para manejo de JWT.
+     * @param usuarioRepositorio Repositorio de usuarios.
+     */
     public JwtFilter(JwtUtil jwtUtil, IUsuarioRepositorio usuarioRepositorio) {
         this.jwtUtil = jwtUtil;
         this.usuarioRepositorio = usuarioRepositorio;
     }
 
+    /**
+     * Método que se ejecuta en cada petición HTTP.
+     * Valida el token JWT, verifica el usuario y establece la autenticación
+     * en el contexto de seguridad si todo es correcto.
+     *
+     * @param request  Petición HTTP entrante.
+     * @param response Respuesta HTTP.
+     * @param filterChain Cadena de filtros.
+     * @throws ServletException En caso de error de servlet.
+     * @throws IOException En caso de error de entrada/salida.
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -56,7 +84,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
                     Usuario usuario = usuarioOpt.get();
 
-                    // 🔴 VALIDAR SI EL USUARIO ESTÁ ACTIVO
+                    // VALIDAR SI EL USUARIO ESTÁ ACTIVO
                     if (!Boolean.TRUE.equals(usuario.getEstaActivo())) {
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         response.getWriter().write("Usuario desactivado");
