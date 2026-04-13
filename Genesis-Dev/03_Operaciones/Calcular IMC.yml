@@ -8,7 +8,7 @@ http:
   url: http://localhost:8080/api/v1/operaciones/imc
   headers:
     - name: Authorization
-      value: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2YWxlbnRpbmEiLCJyb2wiOiJVU0VSIiwiaWF0IjoxNzc2MDk4NjUzLCJleHAiOjE3NzYxODUwNTN9.r9ay1hseHjyfxtWKcZRiY6FOdu90l_LXtgb6hCcH-cc
+      value: Bearer {{token}}
       disabled: true
   body:
     type: json
@@ -17,6 +17,11 @@ http:
         "pesoKg": 65.0,
         "alturaCm": 170.0
       }
+
+runtime:
+  variables:
+    - name: token
+      value: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2YWxlbnRpbmEiLCJyb2wiOiJVU0VSIiwiaWF0IjoxNzc2MTEzMzcyLCJleHAiOjE3NzYxOTk3NzJ9.76niM4fSAxW6rt-xMs0uFris5dbQtbDtTIAfl3qaLb
 
 settings:
   encodeUrl: true
