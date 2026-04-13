@@ -1,289 +1,304 @@
 openapi: 3.0.3
 info:
   title: Proyecto Genesis - Breaze in the Moon
-  description: Plataforma de cómputo con trazabilidad de costos mediante tokens.
   version: 1.0.0
+  description: API completa con autenticación JWT, usuarios, admin y operaciones
 
 servers:
-  - url: http://localhost:8080/api/v1
-    description: Servidor Local de Desarrollo (v1)
+    - url: http://localhost:8080/api/v1
 
-# --- SEGURIDAD GLOBAL ---
+# 🔐 JWT GLOBAL
 security:
   - bearerAuth: []
 
 paths:
-  # --- AUTENTICACIÓN ---
-  /auth/registrar:
-    post:
-      summary: "Registrar un nuevo usuario"
-      tags: [Autenticación]
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SolicitudRegistro'
-      responses:
-        '201':
-          description: Usuario creado con éxito.
-        '400':
-          $ref: '#/components/responses/ErrorValidacion'
 
+  # ========================
+  # AUTH
+  # ========================
   /auth/login:
     post:
-      summary: "Iniciar sesión"
-      tags: [Autenticación]
+      tags: [Auth]
+      summary: Login usuario
       security: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SolicitudLogin'
+              $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Login exitoso.
-
-  # --- USUARIO ---
-  /usuario/perfil:
-    get:
-      summary: "Consultar perfil del usuario actual"
-      tags: [Usuario]
-      responses:
-        '200':
-          description: Datos del perfil.
+          description: Token JWT
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UsuarioPerfil'
+                $ref: '#/components/schemas/AuthResponse'
 
-  /usuario/historial:
+  /auth/registrar:
+    post:
+      tags: [Auth]
+      summary: Registrar usuario
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  # ========================
+  # USUARIO
+  # ========================
+  /api/v1/usuario/perfil:
     get:
-      summary: "Consultar historial de transacciones"
       tags: [Usuario]
+      summary: Obtener perfil
+      responses:
+        '200':
+          description: Perfil usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerfilResponse'
+
+  /api/v1/usuario/catalogo:
+    get:
+      tags: [Usuario]
+      summary: Ver catálogo de operaciones
+      responses:
+        '200':
+          description: Lista de operaciones
+
+  /api/v1/usuario/historial:
+    get:
+      tags: [Usuario]
+      summary: Historial de transacciones
       parameters:
         - name: pagina
           in: query
-          schema: { type: integer, default: 0 }
-        - name: tamano
+          schema:
+            type: integer
+        - name: tamaño
           in: query
-          schema: { type: integer, default: 10 }
+          schema:
+            type: integer
       responses:
         '200':
-          description: Lista de transacciones.
+          description: Historial
 
-  /usuario/catalogo:
+  /api/v1/usuario/suscripcion:
+    post:
+      tags: [Usuario]
+      summary: Suscribirse a plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuscripcionRequest'
+      responses:
+        '200':
+          description: Suscripción exitosa
+
+  # ========================
+  # OPERACIONES 🔥
+  # ========================
+  /api/v1/operaciones/credito:
+    post:
+      tags: [Operaciones]
+      summary: Calcular crédito
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditoRequest'
+      responses:
+        '200':
+          description: Resultado crédito
+
+  /api/v1/operaciones/conversor:
+    post:
+      tags: [Operaciones]
+      summary: Conversor COP/USD
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversorRequest'
+      responses:
+        '200':
+          description: Conversión realizada
+
+  /api/v1/operaciones/imc:
+    post:
+      tags: [Operaciones]
+      summary: Calcular IMC
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IMCRequest'
+      responses:
+        '200':
+          description: Resultado IMC
+
+  /api/v1/operaciones/sueno:
+    post:
+      tags: [Operaciones]
+      summary: Calcular sueño
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuenoRequest'
+      responses:
+        '200':
+          description: Resultado sueño
+
+  # ========================
+  # ADMIN 👑
+  # ========================
+  /api/v1/admin/usuarios:
     get:
-      summary: "Ver catálogo de operaciones"
-      tags: [Usuario]
+      tags: [Admin]
+      summary: Listar usuarios
       responses:
         '200':
-          description: Lista de operaciones activas.
+          description: Lista usuarios
 
-  /usuario/suscripcion:
+  /api/v1/admin/usuarios/{id}/activar:
+    patch:
+      tags: [Admin]
+      summary: Activar/desactivar usuario
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Estado actualizado
+
+  /api/v1/admin/usuarios/{id}/recargar:
     post:
-      summary: "Suscribirse a un plan de tokens"
-      tags: [Usuario]
+      tags: [Admin]
+      summary: Recargar tokens
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SolicitudSuscripcion'
+              type: object
+              properties:
+                tokens:
+                  type: integer
       responses:
         '200':
-          description: Suscripción exitosa.
-
-  # --- OPERACIONES ---
-  /operaciones/credito:
-    post:
-      summary: "Cálculo de Crédito"
-      tags: [Operaciones]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreditoSolicitud'
-      responses:
-        '200':
-          description: Cálculo exitoso.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreditoRespuesta'
-
-  /operaciones/imc:
-    post:
-      summary: "Calculadora de IMC"
-      tags: [Operaciones]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/IMCSolicitud'
-      responses:
-        '200':
-          description: Resultado exitoso.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/IMCRespuesta'
-
-  /operaciones/sueno:
-    post:
-      summary: "Calculadora de Sueño"
-      tags: [Operaciones]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SolicitudSueno'
-      responses:
-        '200':
-          description: Horarios calculados.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RespuestaSueno'
-
-  /operaciones/moneda:
-    post:
-      summary: "Conversor de Moneda"
-      tags: [Operaciones]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ConversorSolicitud'
-      responses:
-        '200':
-          description: Conversión realizada.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConversorRespuesta'
+          description: Tokens recargados
 
 components:
+
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
 
-  responses:
-    ErrorValidacion:
-      description: "Error en los datos de entrada"
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorRespuesta'
-
   schemas:
-    # --- AUTH & USER ---
-    SolicitudRegistro:
-      type: object
-      required: [usuario, correo, contrasena]
-      properties:
-        usuario: { type: string, example: "valentina" }
-        correo: { type: string, example: "vale@correo.com" }
-        contrasena: { type: string, example: "123456" }
 
-    SolicitudLogin:
+    LoginRequest:
       type: object
-      required: [usuario, contrasena]
       properties:
-        usuario: { type: string, example: "valentina" }
-        contrasena: { type: string, example: "123456" }
+        usuario:
+          type: string
+        contrasena:
+          type: string
 
-    UsuarioPerfil:
+    RegisterRequest:
       type: object
       properties:
-        usuario: { type: string }
-        tokensDisponibles: { type: integer }
-        planActivo: { type: string }
-        rolUsuario: { type: string, enum: [USER, ADMIN] }
+        usuario:
+          type: string
+        correo:
+          type: string
+        contrasena:
+          type: string
 
-    SolicitudSuscripcion:
+    AuthResponse:
       type: object
-      required: [planId]
       properties:
-        planId: { type: integer, example: 1 }
+        token:
+          type: string
 
-    ErrorRespuesta:
+    PerfilResponse:
       type: object
       properties:
-        codigo: { type: integer }
-        mensaje: { type: string }
-        timestamp: { type: string, format: "date-time" }
+        usuario:
+          type: string
+        tokensDisponibles:
+          type: integer
+        planActivo:
+          type: string
 
-    # --- OPERACIÓN: IMC ---
-    IMCSolicitud:
+    SuscripcionRequest:
       type: object
-      required: [pesoKg, alturaCm]
       properties:
-        pesoKg: { type: number, example: 70.5 }
-        alturaCm: { type: number, example: 175.0 }
+        planId:
+          type: integer
 
-    IMCRespuesta:
+    CreditoRequest:
       type: object
       properties:
-        imc: { type: number }
-        categoria: { type: string }
-        tokensConsumidos: { type: integer }
+        precio:
+          type: number
+        cuotas:
+          type: integer
+        tasaMensual:
+          type: number
 
-    # --- OPERACIÓN: CRÉDITO ---
-    CreditoSolicitud:
+    ConversorRequest:
       type: object
-      required: [precio, cuotas, tasaMensual]
       properties:
-        precio: { type: number, example: 5000000 }
-        cuotas: { type: integer, example: 12 }
-        tasaMensual: { type: number, example: 1.5 }
+        monto:
+          type: number
+        monedaOrigen:
+          type: string
+        monedaDestino:
+          type: string
 
-    CreditoRespuesta:
+    IMCRequest:
       type: object
       properties:
-        cuotaMensual: { type: number }
-        totalPagado: { type: number }
-        tokensConsumidos: { type: integer }
+        pesoKg:
+          type: number
+        alturaCm:
+          type: number
 
-    # --- OPERACIÓN: SUEÑO ---
-    SolicitudSueno:
+    SuenoRequest:
       type: object
-      required: [modo, hora]
       properties:
-        modo: { type: string, enum: [HORA_DESPERTAR, HORA_ACOSTARSE] }
-        hora: { type: string, example: "22:30" }
+        modo:
+          type: string
+        hora:
+          type: string
+        minutosParaDormir:
+          type: integer
 
-    RespuestaSueno:
-      type: object
-      properties:
-        opciones:
-          type: array
-          items:
-            type: object
-            properties:
-              ciclos: { type: integer }
-              horaCalculada: { type: string }
-        tokensConsumidos: { type: integer }
-
-    # --- OPERACIÓN: MONEDA ---
-    ConversorSolicitud:
-      type: object
-      required: [monto, monedaOrigen, tasaSugerida]
-      properties:
-        monto: { type: number, example: 100.0 }
-        monedaOrigen: { type: string, example: "USD" }
-        tasaSugerida: { type: number, example: 3950.0 }
-
-    ConversorRespuesta:
-      type: object
-      properties:
-        montoConvertido: { type: number }
-        tokensConsumidos: { type: integer }

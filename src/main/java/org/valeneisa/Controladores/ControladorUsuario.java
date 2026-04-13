@@ -19,40 +19,32 @@ public class ControladorUsuario {
 
     private final ServicioUsuario servicioUsuario;
 
-    // 🔹 PERFIL
     @GetMapping("/perfil")
-    public RespuestaPerfilUsuario perfil(Authentication autenticacion) {
-        return servicioUsuario.getProfile(autenticacion.getName());
+    public RespuestaPerfilUsuario perfil(Authentication auth) {
+        return servicioUsuario.getProfile(auth.getName());
     }
 
-    // 🔹 HISTORIAL
     @GetMapping("/historial")
     public List<Transaccion> historial(
-            Authentication autenticacion,
+            Authentication auth,
             @RequestParam(defaultValue = "0") int pagina,
-            @RequestParam(defaultValue = "10") int tamano
+            @RequestParam(defaultValue = "10") int tamaño
     ) {
-        return servicioUsuario.getTransactions(
-                autenticacion.getName(),
-                pagina,
-                tamano
-        );
+        return servicioUsuario.getTransactions(auth.getName(), pagina, tamaño);
     }
 
-    // 🔹 CATÁLOGO
     @GetMapping("/catalogo")
     public List<Operacion> catalogo() {
         return servicioUsuario.getCatalogo();
     }
 
-    // 🔹 SUSCRIPCIÓN
     @PostMapping("/suscripcion")
     public String suscripcion(
-            Authentication autenticacion,
+            Authentication auth,
             @Valid @RequestBody SolicitudSuscripcion solicitud
     ) {
         return servicioUsuario.subscribe(
-                autenticacion.getName(),
+                auth.getName(),
                 solicitud.getPlanId()
         );
     }
